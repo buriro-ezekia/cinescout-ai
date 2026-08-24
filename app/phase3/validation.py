@@ -188,8 +188,17 @@ def validate_resilience_scenario(scenario: dict[str, Any]) -> ResilienceResult:
     evidence_ids = [claim["claim_id"] for claim in evidence_claims]
     risk_ids = [claim["claim_id"] for claim in risk_claims]
     final_source_ids = report["source_ids"]
+    retained_ids = report["retained_claim_ids"]
+    unresolved_ids = report["unresolved_claim_ids"]
 
-    identifier_groups = (claim_ids, task_ids, evidence_ids, risk_ids)
+    identifier_groups = (
+        claim_ids,
+        task_ids,
+        evidence_ids,
+        risk_ids,
+        retained_ids,
+        unresolved_ids,
+    )
     if any(_has_duplicates(values) for values in identifier_groups):
         add(ResilienceIssueCode.DUPLICATE_IDENTIFIER, "Stage identifiers must be unique.")
     if _has_duplicates(final_source_ids):
@@ -235,6 +244,12 @@ def validate_resilience_scenario(scenario: dict[str, Any]) -> ResilienceResult:
             ResilienceIssueCode.MISSING_EVIDENCE,
             "Every externally verifiable claim must reach evidence review.",
         )
+    missing_risk = set(evidence_by_id) - set(risk_by_id)
+    if missing_risk:
+        add(
+            ResilienceIssueCode.MISSING_RISK_ASSESSMENT,
+            "Every evidence-reviewed claim must reach production-risk assessment.",
+        )
 
     unresolved_claims: set[str] = set()
     for claim_id, evidence in evidence_by_id.items():
@@ -270,9 +285,9 @@ def validate_resilience_scenario(scenario: dict[str, Any]) -> ResilienceResult:
                     f"Risk assessment dropped uncertainty for {claim_id}.",
                 )
 
-    retained_claim_ids = set(report["retained_claim_ids"])
+    retained_claim_ids = set(retained_ids)
     final_statuses = report["claim_statuses"]
-    final_unresolved = set(report["unresolved_claim_ids"])
+    final_unresolved = set(unresolved_ids)
     final_sources = set(final_source_ids)
 
     for claim_id in retained_claim_ids:
