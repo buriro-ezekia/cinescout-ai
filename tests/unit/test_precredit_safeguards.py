@@ -21,6 +21,16 @@ def test_offline_evaluation_check_declares_zero_external_calls() -> None:
     assert 'print("EXTERNAL_SEARCH_CALLS=0")' in source
 
 
+def test_phase2_offline_check_cannot_execute_agents_or_tools() -> None:
+    source = Path("scripts/check_phase2.py").read_text(encoding="utf-8")
+
+    assert "call_tool(" not in source
+    assert "Runner(" not in source
+    assert ".run_async" not in source
+    assert 'print("PHASE2_GEMINI_CALLS=0")' in source
+    assert 'print("PHASE2_EXTERNAL_SEARCH_CALLS=0")' in source
+
+
 def test_offline_evaluation_entrypoint_runs_outside_repository_root(tmp_path: Path) -> None:
     repository_root = Path(__file__).resolve().parents[2]
     script = repository_root / "scripts" / "check_offline_evals.py"
