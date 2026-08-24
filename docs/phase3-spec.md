@@ -12,14 +12,16 @@ Phase 3 validates these properties:
 
 1. malformed stage payloads are rejected rather than silently accepted;
 2. an empty research plan is valid only when the brief contains no externally verifiable claim;
-3. unsupported claims remain `insufficient_evidence`;
-4. conflicting evidence cannot be promoted to `high` confidence;
-5. downstream stages cannot increase evidence confidence;
-6. source attribution survives downstream transformations;
-7. unresolved uncertainty survives risk assessment and final synthesis;
-8. research-task, `web_search` and `web_fetch` budgets remain bounded;
-9. final reports retain the required five-section contract; and
-10. all deterministic fixtures can be validated without executing the ADK workflow.
+3. every externally verifiable claim receives a research task and reaches evidence review;
+4. every evidence-reviewed claim reaches production-risk assessment;
+5. unsupported claims remain `insufficient_evidence`;
+6. conflicting evidence cannot be promoted to `high` confidence;
+7. downstream stages cannot increase evidence confidence;
+8. source attribution survives downstream transformations;
+9. unresolved uncertainty survives risk assessment and final synthesis;
+10. research-task, `web_search` and `web_fetch` budgets remain bounded;
+11. final reports retain the required five-section contract; and
+12. all deterministic fixtures can be validated without executing the ADK workflow.
 
 ## Fixture model
 
@@ -51,9 +53,9 @@ Conflicting evidence is never eligible for `high` confidence. Unsupported claims
 
 Every source identifier attached to a material claim in the Evidence Verifier output must remain attributable in the final report. A downstream stage may cite fewer sources only for claims omitted from the final response; it must not detach a retained claim from all of its supporting source identifiers.
 
-## Empty research plans
+## Empty and partial research plans
 
-An empty research plan is allowed only when the Brief Interpreter reports no material externally verifiable claims. If verifiable claims exist, the plan must contain at least one research task.
+An empty research plan is allowed only when the Brief Interpreter reports no material externally verifiable claims. If verifiable claims exist, the plan must contain research tasks for every such claim rather than silently omitting a subset.
 
 ## Budget contract
 
@@ -81,7 +83,7 @@ Phase 3 offline implementation is complete when:
 
 - typed resilience contracts and validators exist;
 - the controlled resilience corpus covers malformed input, empty plans, unsupported claims, conflicting evidence, confidence non-escalation, source preservation, uncertainty propagation, budget enforcement and final-report structure;
-- unit tests exercise both passing and intentionally failing fixtures;
+- unit tests exercise passing fixtures and intentionally failing state transitions, including partial plans and missing risk-state output;
 - a standalone Phase 3 readiness checker validates the corpus from outside the repository root;
 - local readiness and CI invoke the Phase 3 checker after Phase 2;
 - Phase 1 and Phase 2 runtime files remain unchanged by Phase 3; and
