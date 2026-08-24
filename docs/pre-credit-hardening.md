@@ -4,7 +4,7 @@ CineScout AI can continue to make meaningful engineering progress before Google 
 
 ## Purpose
 
-The pre-credit hardening layer prepares the repository for the eventual live Phase 1 acceptance test without weakening the project's evidence requirements or introducing a substitute model. It concentrates on deterministic contracts, controlled evaluation scenarios, dependency integrity and partner-connectivity checks.
+The pre-credit hardening layer prepares the repository for the eventual credentialled Gemini → Parallel acceptance tests without weakening the project's evidence requirements or introducing a substitute model. It concentrates on deterministic contracts, controlled evaluation scenarios, dependency integrity, specialist-workflow structure and partner-connectivity checks.
 
 ## At-no-cost validation boundary
 
@@ -26,14 +26,17 @@ pytest
 controlled evaluation corpus
     |
     v
-repository contract
+Phase 1 repository contract
+    |
+    v
+Phase 2 graph-workflow contract
 ```
 
 The controlled corpus in `evals/scenarios.json` covers historical context, cultural context, geography and locations, institutions, props or technology, terminology, logistics and rights context. These scenarios do not attempt to answer the research questions offline. Instead, they define what later live evaluations must recognise and how the final response must be structured.
 
 ## Production-research contract
 
-`app/contracts.py` defines the shared research categories, evidence-status vocabulary and required response sections. This provides a stable interface for later specialist agents without introducing multi-agent orchestration before the Phase 1 runtime path has been demonstrated.
+`app/contracts.py` defines the shared research categories, evidence-status vocabulary and required response sections. These contracts are consumed by the Phase 2 specialist workflow so all stages use the same evidence language and final-response structure.
 
 The evidence states are:
 
@@ -49,6 +52,12 @@ The required response sections remain:
 - Production implications;
 - Uncertainty or conflicts; and
 - Sources consulted.
+
+## Phase 2 offline workflow boundary
+
+Phase 2 is implemented as a graph-based Google ADK `Workflow` with five specialist LLM nodes. Structural validation may construct the workflow and inspect its graph, state keys, tool ownership and specialist configuration, but it must not execute an agent.
+
+Only the Evidence Verifier owns Parallel Search MCP. All specialists are isolated `single_turn` workflow nodes with `include_contents="none"`. The offline contract therefore validates architecture without consuming Gemini or Parallel search capacity.
 
 ## Optional Parallel connectivity probe
 
@@ -72,4 +81,4 @@ GEMINI_CALLS=0
 
 ## Deferred work
 
-The credentialled Gemini → Parallel runtime acceptance test remains deferred until a dedicated Google Cloud project can use the hackathon credits. No production project should be repurposed merely to complete that test.
+The credentialled Gemini → Parallel runtime acceptance tests remain deferred until a dedicated Google Cloud project can use the hackathon credits. No unrelated production project should be repurposed merely to complete those tests.

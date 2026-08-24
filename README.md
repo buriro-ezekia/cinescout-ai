@@ -4,7 +4,7 @@
 
 CineScout AI is being developed for the **Agentic Cinema: The Blockbuster Hackathon**. It addresses a practical pre-production problem: creative teams often need to verify historical details, cultural context, locations, institutions, props, terminology, logistics and other production-sensitive claims across fragmented sources before making confident decisions.
 
-Rather than operating as a general-purpose film assistant, CineScout converts a production brief or screenplay extract into auditable production intelligence. External evidence is used where factual verification is required, while the system is designed to keep evidence, interpretation, uncertainty and recommendation clearly separated.
+Rather than operating as a general-purpose film assistant, CineScout converts a production brief or screenplay extract into auditable production intelligence. External evidence is used where factual verification is required, while evidence, interpretation, uncertainty and recommendation remain clearly separated.
 
 ## Current development status
 
@@ -14,7 +14,7 @@ Parallel connectivity has been demonstrated against the configured MCP endpoint 
 
 The remaining Phase 1 acceptance condition is the credentialled Gemini → Parallel runtime proof. That test is intentionally deferred until Google hackathon credits are available for a dedicated CineScout AI Google Cloud project. CineScout therefore does not use an unrelated production billing account while the credits are pending.
 
-Phase 2 is now being built on top of the proven Phase 1 foundation as a separate specialist-agent candidate. The Phase 1 `app/agent.py` entry point remains unchanged and continues to be the repository default until the later credentialled acceptance process is complete.
+Phase 2 is implemented as a separate specialist-agent candidate. The Phase 1 `app/agent.py` entry point remains unchanged and continues to be the repository default until the later credentialled acceptance process is complete.
 
 ## Phase 1 foundation
 
@@ -69,7 +69,9 @@ Report Synthesiser
 Evidence-backed production intelligence
 ```
 
-Google ADK `SequentialAgent` provides deterministic orchestration because each stage depends on the state produced by the previous stage. Every specialist is created through a factory function so pipeline instances never reuse child agents that already belong to another parent.
+Google ADK graph `Workflow` provides deterministic orchestration through one strict chain from `START` to the Report Synthesiser. This replaces the deprecated `SequentialAgent` convenience wrapper while preserving the same ordered specialist design.
+
+Every specialist is created through a factory function and is explicitly configured as an isolated `single_turn` workflow node with `include_contents="none"`. Node outputs flow to the next workflow stage and are also stored under distinct `output_key` values for explicit shared-state hand-offs.
 
 Only the **Evidence Verifier** owns a Parallel MCP toolset. The Brief Interpreter and Research Planner cannot search externally; the Production Risk Agent and Report Synthesiser consume verified state rather than conducting additional research. This keeps partner usage observable and avoids unnecessary search calls.
 
@@ -104,7 +106,7 @@ No stage may invent a source, present unsupported material as verified, or stren
 
 ## Technology
 
-- **Google Agent Development Kit (ADK) 2.7.1** provides the agent runtime and workflow orchestration;
+- **Google Agent Development Kit (ADK) 2.7.1** provides the agent runtime and graph workflow orchestration;
 - **MCP Python SDK 1.29.0** provides the Model Context Protocol client required by the ADK MCP toolset;
 - **Gemini** provides reasoning for the later credentialled runtime;
 - **Google Cloud / Vertex AI** is the intended hackathon runtime;
@@ -128,8 +130,9 @@ The current at-no-cost engineering layer includes:
 - deterministic Phase 1 and Phase 2 repository contracts;
 - a six-scenario evaluation corpus covering all eight research categories;
 - structured specialist state hand-offs;
-- Phase 2 orchestration and tool-ownership tests;
-- factory-isolation tests for ADK child agents;
+- Phase 2 graph-orchestration and tool-ownership tests;
+- explicit single-turn specialist isolation checks;
+- fresh specialist-factory checks;
 - response-structure and evidence guardrails; and
 - an optional manual Parallel MCP connectivity probe that lists tools without invoking them.
 
@@ -146,7 +149,7 @@ cinescout-ai/
 │   ├── evaluation.py
 │   ├── prompts.py
 │   └── phase2/
-│       ├── agent.py              # five-stage Phase 2 candidate
+│       ├── agent.py              # five-stage Phase 2 graph Workflow
 │       ├── contracts.py          # stage, state and budget contracts
 │       ├── prompts.py            # specialist instructions
 │       └── tools.py              # fresh Parallel MCP toolset factory
@@ -223,7 +226,7 @@ The readiness suite performs:
 - the Phase 1 repository contract; and
 - the Phase 2 offline structural contract.
 
-The Phase 2 contract performs no agent execution. It verifies the `SequentialAgent` structure, specialist order, state keys, Parallel ownership and factory isolation while explicitly reporting zero Gemini and external search calls.
+The Phase 2 contract performs no agent execution. It verifies the graph `Workflow`, exact specialist chain, state keys, Parallel ownership, specialist isolation and fresh factory instances while explicitly reporting zero Gemini and external search calls.
 
 A complete successful run ends with:
 

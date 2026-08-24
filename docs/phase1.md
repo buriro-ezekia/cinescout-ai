@@ -1,6 +1,6 @@
 # Phase 1 — Minimal vertical slice
 
-Phase 1 deliberately uses one ADK agent rather than a multi-agent network. Its purpose is to demonstrate the complete technical dependency chain before additional orchestration is introduced.
+Phase 1 deliberately uses one ADK agent rather than a multi-agent network. Its purpose is to demonstrate the complete technical dependency chain before the specialist workflow becomes the default runtime.
 
 ## Runtime path
 
@@ -24,7 +24,7 @@ Evidence-backed production intelligence response
 
 ## Why this is the correct first implementation
 
-A vertical slice reduces integration risk. It proves that Gemini can call the required partner service at runtime and that the resulting evidence reaches the final user-facing response. Multi-agent planning, verification and production-risk specialists can then be introduced without changing the underlying partner integration.
+A vertical slice reduces integration risk. It proves that Gemini can call the required partner service at runtime and that the resulting evidence reaches the final user-facing response. The Phase 2 specialist workflow is now implemented separately on top of this foundation, without changing the validated Phase 1 entry point.
 
 ## Current validation status
 

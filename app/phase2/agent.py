@@ -1,8 +1,9 @@
-"""Google ADK candidate pipeline for CineScout AI Phase 2."""
+"""Google ADK candidate workflow for CineScout AI Phase 2."""
 
 from __future__ import annotations
 
-from google.adk.agents import Agent, SequentialAgent
+from google.adk import START, Workflow
+from google.adk.agents import Agent
 from google.adk.apps import App
 from google.adk.models import Gemini
 from google.genai import types
@@ -28,87 +29,101 @@ def _model() -> Gemini:
     )
 
 
-def create_brief_interpreter() -> Agent:
-    """Create the specialist that interprets the production brief."""
+def _specialist_agent(
+    *,
+    role: SpecialistRole,
+    description: str,
+    instruction: str,
+    tools: list | None = None,
+) -> Agent:
+    """Create one isolated single-turn specialist workflow node."""
 
-    contract = stage_contract(SpecialistRole.BRIEF_INTERPRETER)
+    contract = stage_contract(role)
     return Agent(
         name=contract.agent_name,
         model=_model(),
+        mode="single_turn",
+        include_contents="none",
+        description=description,
+        instruction=instruction,
+        tools=tools or [],
+        output_key=contract.output_key,
+    )
+
+
+def create_brief_interpreter() -> Agent:
+    """Create the specialist that interprets the production brief."""
+
+    return _specialist_agent(
+        role=SpecialistRole.BRIEF_INTERPRETER,
         description="Identifies production claims and context that require verification.",
         instruction=BRIEF_INTERPRETER_INSTRUCTION,
-        output_key=contract.output_key,
     )
 
 
 def create_research_planner() -> Agent:
     """Create the specialist that converts brief analysis into bounded research tasks."""
 
-    contract = stage_contract(SpecialistRole.RESEARCH_PLANNER)
-    return Agent(
-        name=contract.agent_name,
-        model=_model(),
+    return _specialist_agent(
+        role=SpecialistRole.RESEARCH_PLANNER,
         description="Builds a bounded external-research plan from the interpreted brief.",
         instruction=RESEARCH_PLANNER_INSTRUCTION,
-        output_key=contract.output_key,
     )
 
 
 def create_evidence_verifier() -> Agent:
     """Create the only specialist with direct access to Parallel Search MCP."""
 
-    contract = stage_contract(SpecialistRole.EVIDENCE_VERIFIER)
-    return Agent(
-        name=contract.agent_name,
-        model=_model(),
+    return _specialist_agent(
+        role=SpecialistRole.EVIDENCE_VERIFIER,
         description="Executes the research plan and assesses source-backed evidence.",
         instruction=EVIDENCE_VERIFIER_INSTRUCTION,
         tools=[create_parallel_search_toolset()],
-        output_key=contract.output_key,
     )
 
 
 def create_production_risk_agent() -> Agent:
     """Create the specialist that converts evidence into production implications."""
 
-    contract = stage_contract(SpecialistRole.PRODUCTION_RISK)
-    return Agent(
-        name=contract.agent_name,
-        model=_model(),
+    return _specialist_agent(
+        role=SpecialistRole.PRODUCTION_RISK,
         description="Assesses practical production risks without overstating evidence.",
         instruction=PRODUCTION_RISK_INSTRUCTION,
-        output_key=contract.output_key,
     )
 
 
 def create_report_synthesiser() -> Agent:
     """Create the specialist that produces the final production intelligence report."""
 
-    contract = stage_contract(SpecialistRole.REPORT_SYNTHESISER)
-    return Agent(
-        name=contract.agent_name,
-        model=_model(),
+    return _specialist_agent(
+        role=SpecialistRole.REPORT_SYNTHESISER,
         description="Synthesises evidence, risk and uncertainty into the final response.",
         instruction=REPORT_SYNTHESISER_INSTRUCTION,
-        output_key=contract.output_key,
     )
 
 
-def create_phase2_pipeline() -> SequentialAgent:
-    """Create a fresh deterministic five-stage Phase 2 pipeline."""
+def create_phase2_specialists() -> tuple[Agent, ...]:
+    """Create fresh specialist nodes in the canonical Phase 2 order."""
 
-    return SequentialAgent(
+    return (
+        create_brief_interpreter(),
+        create_research_planner(),
+        create_evidence_verifier(),
+        create_production_risk_agent(),
+        create_report_synthesiser(),
+    )
+
+
+def create_phase2_pipeline() -> Workflow:
+    """Create a fresh deterministic five-stage graph workflow."""
+
+    specialists = create_phase2_specialists()
+    return Workflow(
         name="cinescout_phase2_pipeline",
         description=(
             "Deterministic specialist workflow for evidence-backed pre-production research."
         ),
-        sub_agents=[
-            create_brief_interpreter(),
-            create_research_planner(),
-            create_evidence_verifier(),
-            create_production_risk_agent(),
-            create_report_synthesiser(),
-        ],
+        edges=[(START, *specialists)],
     )
 
 
@@ -117,3 +132,7 @@ phase2_app = App(
     root_agent=phase2_root_agent,
     name="phase2_app",
 )
+
+# Conventional ADK loader exports for running this candidate directly later.
+root_agent = phase2_root_agent
+app = phase2_app
