@@ -49,8 +49,9 @@ Brief analysis:
 {{{_BRIEF_KEY}}}
 
 Prioritise only claims that could materially affect authenticity, continuity, cultural context,
-location choice, logistics, rights context or another production decision. Create no more than
-{MAX_RESEARCH_TASKS} research tasks unless the user explicitly requested broader research.
+location choice, logistics, rights context or another production decision.
+Create no more than {MAX_RESEARCH_TASKS} research tasks unless the user explicitly requested broader
+research.
 
 For each task provide:
 - the claim or question to verify;
