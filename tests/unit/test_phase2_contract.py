@@ -1,0 +1,75 @@
+"""Repository contracts for the CineScout AI Phase 2 specialist workflow."""
+
+from pathlib import Path
+
+from app.contracts import REQUIRED_RESPONSE_SECTIONS
+from app.phase2.contracts import (
+    MAX_RESEARCH_TASKS,
+    MAX_WEB_FETCH_CALLS,
+    MAX_WEB_SEARCH_CALLS,
+    PHASE2_STAGE_ORDER,
+    PHASE2_STAGES,
+    SpecialistRole,
+)
+from app.phase2.prompts import (
+    EVIDENCE_VERIFIER_INSTRUCTION,
+    REPORT_SYNTHESISER_INSTRUCTION,
+    RESEARCH_PLANNER_INSTRUCTION,
+)
+
+
+def test_phase2_stage_order_and_state_keys_are_stable() -> None:
+    assert PHASE2_STAGE_ORDER == (
+        SpecialistRole.BRIEF_INTERPRETER,
+        SpecialistRole.RESEARCH_PLANNER,
+        SpecialistRole.EVIDENCE_VERIFIER,
+        SpecialistRole.PRODUCTION_RISK,
+        SpecialistRole.REPORT_SYNTHESISER,
+    )
+
+    output_keys = tuple(stage.output_key for stage in PHASE2_STAGES)
+    assert output_keys == (
+        "phase2_brief_analysis",
+        "phase2_research_plan",
+        "phase2_evidence_review",
+        "phase2_risk_assessment",
+        "phase2_final_report",
+    )
+    assert len(output_keys) == len(set(output_keys))
+
+
+def test_only_evidence_verifier_owns_parallel_boundary() -> None:
+    parallel_roles = tuple(stage.role for stage in PHASE2_STAGES if stage.uses_parallel)
+    assert parallel_roles == (SpecialistRole.EVIDENCE_VERIFIER,)
+
+
+def test_phase2_research_budget_is_bounded() -> None:
+    assert MAX_RESEARCH_TASKS == 6
+    assert MAX_WEB_SEARCH_CALLS == 6
+    assert MAX_WEB_FETCH_CALLS == 3
+    assert "no more than 6 research tasks" in RESEARCH_PLANNER_INSTRUCTION
+    assert "no more than 6 web_search calls" in EVIDENCE_VERIFIER_INSTRUCTION
+    assert "no more than 3 web_fetch calls" in EVIDENCE_VERIFIER_INSTRUCTION
+
+
+def test_phase2_state_handoffs_are_explicit_in_prompts() -> None:
+    assert "{phase2_brief_analysis}" in RESEARCH_PLANNER_INSTRUCTION
+    assert "{phase2_research_plan}" in EVIDENCE_VERIFIER_INSTRUCTION
+    assert "{phase2_brief_analysis}" in REPORT_SYNTHESISER_INSTRUCTION
+    assert "{phase2_research_plan}" in REPORT_SYNTHESISER_INSTRUCTION
+    assert "{phase2_evidence_review}" in REPORT_SYNTHESISER_INSTRUCTION
+    assert "{phase2_risk_assessment}" in REPORT_SYNTHESISER_INSTRUCTION
+
+
+def test_report_synthesiser_preserves_response_contract_order() -> None:
+    positions = [
+        REPORT_SYNTHESISER_INSTRUCTION.index(section)
+        for section in REQUIRED_RESPONSE_SECTIONS
+    ]
+    assert positions == sorted(positions)
+
+
+def test_phase1_default_entrypoint_remains_phase1() -> None:
+    source = Path("app/agent.py").read_text(encoding="utf-8")
+    assert 'name="cinescout_phase1"' in source
+    assert "app.phase2" not in source
