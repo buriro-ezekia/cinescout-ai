@@ -42,6 +42,10 @@ def _is_string_list(value: object) -> bool:
     return isinstance(value, list) and all(isinstance(item, str) for item in value)
 
 
+def _has_duplicates(values: list[str]) -> bool:
+    return len(values) != len(set(values))
+
+
 def _valid_shape(scenario: dict[str, Any]) -> bool:
     required_top = {
         "id",
@@ -73,13 +77,16 @@ def _valid_shape(scenario: dict[str, Any]) -> bool:
     evidence = scenario["evidence_review"]
     risk = scenario["risk_assessment"]
     report = scenario["final_report"]
-    if not all(isinstance(stage, dict) for stage in (brief, plan, evidence, risk, report)):
+    stages = (brief, plan, evidence, risk, report)
+    if not all(isinstance(stage, dict) for stage in stages):
         return False
     if not isinstance(brief.get("claims"), list):
         return False
     if not isinstance(plan.get("tasks"), list):
         return False
-    if not isinstance(evidence.get("claims"), list) or not isinstance(evidence.get("usage"), dict):
+    if not isinstance(evidence.get("claims"), list):
+        return False
+    if not isinstance(evidence.get("usage"), dict):
         return False
     if not isinstance(risk.get("claims"), list):
         return False
@@ -105,7 +112,9 @@ def _valid_shape(scenario: dict[str, Any]) -> bool:
     for task in plan["tasks"]:
         if not isinstance(task, dict):
             return False
-        if not isinstance(task.get("task_id"), str) or not isinstance(task.get("claim_id"), str):
+        if not isinstance(task.get("task_id"), str):
+            return False
+        if not isinstance(task.get("claim_id"), str):
             return False
 
     for claim in evidence["claims"]:
@@ -142,8 +151,11 @@ def _valid_shape(scenario: dict[str, Any]) -> bool:
         except ValueError:
             return False
 
+    claim_statuses = report["claim_statuses"]
+    if not all(isinstance(key, str) for key in claim_statuses):
+        return False
     try:
-        for value in report["claim_statuses"].values():
+        for value in claim_statuses.values():
             _status(value)
     except (TypeError, ValueError):
         return False
@@ -153,7 +165,8 @@ def _valid_shape(scenario: dict[str, Any]) -> bool:
 def validate_resilience_scenario(scenario: dict[str, Any]) -> ResilienceResult:
     """Validate one controlled stage-state scenario against Phase 3 invariants."""
 
-    scenario_id = scenario.get("id", "<malformed>")
+    raw_id = scenario.get("id", "<malformed>")
+    scenario_id = raw_id if isinstance(raw_id, str) else "<malformed>"
     issues: dict[ResilienceIssueCode, ResilienceIssue] = {}
 
     def add(code: ResilienceIssueCode, message: str) -> None:
@@ -176,9 +189,10 @@ def validate_resilience_scenario(scenario: dict[str, Any]) -> ResilienceResult:
     risk_ids = [claim["claim_id"] for claim in risk_claims]
     final_source_ids = report["source_ids"]
 
-    if any(len(values) != len(set(values)) for values in (claim_ids, task_ids, evidence_ids, risk_ids)):
+    identifier_groups = (claim_ids, task_ids, evidence_ids, risk_ids)
+    if any(_has_duplicates(values) for values in identifier_groups):
         add(ResilienceIssueCode.DUPLICATE_IDENTIFIER, "Stage identifiers must be unique.")
-    if len(final_source_ids) != len(set(final_source_ids)):
+    if _has_duplicates(final_source_ids):
         add(ResilienceIssueCode.DUPLICATE_IDENTIFIER, "Final source identifiers must be unique.")
 
     known_claims = set(claim_ids)
@@ -188,10 +202,15 @@ def validate_resilience_scenario(scenario: dict[str, Any]) -> ResilienceResult:
     task_claims = {task["claim_id"] for task in tasks}
     if any(task["claim_id"] not in known_claims for task in tasks):
         add(ResilienceIssueCode.UNKNOWN_TASK_CLAIM, "A research task references an unknown claim.")
-    if research_claims and not tasks:
+    if research_claims and not task_claims:
         add(
             ResilienceIssueCode.EMPTY_PLAN_WITH_RESEARCH,
             "Externally verifiable claims require a non-empty research plan.",
+        )
+    elif research_claims - task_claims:
+        add(
+            ResilienceIssueCode.MISSING_RESEARCH_TASK,
+            "Every externally verifiable claim must receive a research task.",
         )
 
     if len(tasks) > MAX_RESEARCH_TASKS:
