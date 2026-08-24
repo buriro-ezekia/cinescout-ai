@@ -39,6 +39,7 @@ if ($Version -lt [version]"3.11" -or $Version -ge [version]"3.14") {
 Write-Host "PYTHON_VERSION=$PythonVersion"
 python --version
 
+Invoke-Step "PIP CHECK" { python -m pip check }
 Invoke-Step "COMPILE" { python -m compileall -q app scripts tests }
 Invoke-Step "RUFF" { python -m ruff check app scripts tests }
 Invoke-Step "PYTEST" { python -m pytest -q }
