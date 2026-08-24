@@ -4,8 +4,9 @@ import pytest
 
 pytest.importorskip("google.adk")
 
-from google.adk import START, Workflow
+from google.adk import Workflow
 from google.adk.tools.mcp_tool.mcp_toolset import McpToolset
+from google.adk.workflow import START
 
 from app.phase2.agent import (
     app,
@@ -16,6 +17,11 @@ from app.phase2.agent import (
     root_agent,
 )
 from app.phase2.contracts import PHASE2_STAGES, SpecialistRole
+
+
+def test_adk_271_workflow_import_surface() -> None:
+    assert Workflow is not None
+    assert START.name == "__START__"
 
 
 def test_phase2_application_imports_without_live_calls() -> None:
