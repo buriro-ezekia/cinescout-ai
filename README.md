@@ -26,27 +26,27 @@ External evidence
 Evidence-backed production intelligence
 ```
 
-This phase is intentionally focused. Before introducing specialist agents, the repository first demonstrates that Gemini can interpret a production brief, invoke the required partner service at runtime, receive external evidence and use that evidence to support a practical production response.
+The local Phase 1 baseline is now validated with Python 3.12, Google ADK 2.7.1 and MCP Python SDK 1.29.0. Dependency integrity, compilation, Ruff, the automated test suite and the repository contract pass locally.
+
+The final Phase 1 acceptance condition is a credentialled Gemini → Parallel runtime test. That live test is intentionally deferred until Google Cloud hackathon credits are available for a dedicated CineScout AI project. Routine development therefore continues at no cost without using an unrelated production billing account.
 
 ## Technology
 
 - **Google Agent Development Kit (ADK) 2.7.1** provides the agent runtime;
 - **MCP Python SDK 1.29.0** provides the Model Context Protocol client required by the ADK MCP toolset;
-- **Gemini** provides the reasoning model;
+- **Gemini** provides the reasoning model for the eventual credentialled runtime;
 - **Google Cloud / Vertex AI** is the intended hackathon runtime;
 - **Parallel Search MCP** provides external web research and evidence retrieval;
 - **Agents CLI** supports local development, evaluation and later deployment work;
-- **GitHub Actions** provides quality checks without external credentials or live model calls.
+- **GitHub Actions** provides credential-free quality checks without live model or search calls.
 
-The Phase 1 dependency baseline is deliberately pinned to **Google ADK 2.7.1** and **MCP Python SDK 1.29.0**. Google ADK requires its MCP integration extra for `McpToolset`; the repository therefore installs `google-adk[gcp,mcp]==2.7.1` and keeps the MCP SDK on the compatible 1.x line. This avoids the breaking changes introduced in MCP 2.x during the hackathon.
+The Phase 1 dependency baseline is deliberately pinned to **Google ADK 2.7.1** and **MCP Python SDK 1.29.0**. The repository installs `google-adk[gcp,mcp]==2.7.1` and keeps the MCP SDK on the validated 1.x line.
 
 The validated MCP toolset import is:
 
 ```python
 from google.adk.tools.mcp_tool.mcp_toolset import McpToolset
 ```
-
-The development workflow is designed to remain **at no cost** during the hackathon by reserving Google Cloud model calls for deliberate tests covered by the available hackathon credits and using Parallel Search MCP's anonymous light-use allowance for the initial research workflow.
 
 ## What the Phase 1 agent does
 
@@ -61,6 +61,22 @@ Given a screenplay extract or production brief, the agent is instructed to:
 
 The agent must not invent sources or present uncertain material as verified fact.
 
+## Pre-credit hardening at no cost
+
+While Google Cloud hackathon credits are pending, the repository continues to progress through deterministic engineering work that does not require Gemini or Vertex AI requests.
+
+The pre-credit hardening layer provides:
+
+- typed production-research categories and evidence-status contracts;
+- a controlled evaluation corpus covering historical, cultural, location, institutional, prop, terminology, logistics and rights-context research;
+- deterministic checks for the required final-response structure;
+- local and CI validation with zero Gemini calls and zero external search calls; and
+- an optional manual Parallel MCP connectivity probe that lists server tools without invoking `web_search` or `web_fetch`.
+
+The evaluation corpus does not attempt to manufacture research answers offline. Its purpose is to define what the later live agent must recognise and how evidence-backed output must be structured.
+
+See [`docs/pre-credit-hardening.md`](docs/pre-credit-hardening.md) for the engineering boundary.
+
 ## Repository structure
 
 ```text
@@ -69,10 +85,17 @@ cinescout-ai/
 │   ├── __init__.py
 │   ├── agent.py
 │   ├── config.py
+│   ├── contracts.py
+│   ├── evaluation.py
 │   └── prompts.py
 ├── docs/
-│   └── phase1.md
+│   ├── phase1.md
+│   └── pre-credit-hardening.md
+├── evals/
+│   └── scenarios.json
 ├── scripts/
+│   ├── check_offline_evals.py
+│   ├── check_parallel_mcp.py
 │   ├── check_phase1.py
 │   └── local_readiness.ps1
 ├── tests/
@@ -90,11 +113,11 @@ cinescout-ai/
 
 ## Local development on Windows
 
-The repository is designed for local development in VS Code. Codespaces are not required, which allows routine development and validation to remain at no cost apart from deliberate model calls covered by the hackathon credits.
+The repository is designed for local development in VS Code. Codespaces are not required, allowing routine development and validation to remain at no cost.
 
 ### 1. Confirm a supported Python installation
 
-The repository supports Python **3.11, 3.12 and 3.13**. Python **3.12 is recommended** for a stable and reproducible hackathon environment. Python 3.14 is not used for Phase 1 validation.
+The repository supports Python **3.11, 3.12 and 3.13**. Python **3.12 is recommended** for the validated hackathon environment. Python 3.14 is not used for Phase 1 validation.
 
 Check the Python installations detected by the Windows launcher:
 
@@ -134,7 +157,7 @@ python -m pip install --upgrade -r requirements-dev.txt
 python -m pip check
 ```
 
-The install must include:
+The dependency baseline includes:
 
 ```text
 google-adk[gcp,mcp]==2.7.1
@@ -158,16 +181,44 @@ The script checks:
 - dependency integrity with `pip check`;
 - Python compilation;
 - Ruff linting;
-- automated tests; and
+- the automated test suite;
+- the offline evaluation contract; and
 - the Phase 1 repository contract.
 
-It stops immediately if the Python environment is unsupported, no virtual environment is active, a dependency is missing or inconsistent, or any command returns a non-zero exit code. A successful run ends with:
+The offline evaluation check explicitly reports:
+
+```text
+LIVE_MODEL_CALLS=0
+EXTERNAL_SEARCH_CALLS=0
+```
+
+A successful run ends with:
 
 ```text
 PHASE1_LOCAL_READINESS=PASS
 ```
 
-A `PASS` therefore means that every local readiness check completed successfully.
+## Optional Parallel MCP connectivity check
+
+Parallel Search MCP can be checked independently of Gemini. The manual probe opens an MCP session and confirms that the endpoint advertises `web_search` and `web_fetch`.
+
+It does **not** invoke either tool and is deliberately excluded from CI.
+
+Run:
+
+```powershell
+python scripts\check_parallel_mcp.py
+```
+
+A successful result includes:
+
+```text
+PARALLEL_MCP_CONNECTIVITY=PASS
+TOOL_INVOCATIONS=0
+GEMINI_CALLS=0
+```
+
+This provides useful partner-integration evidence at no cost while the Google Cloud live-model test remains deferred.
 
 ## Troubleshooting MCP dependency errors
 
@@ -199,27 +250,15 @@ google-adk 2.7.1
 mcp 1.29.0
 ```
 
-Then rerun:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts\local_readiness.ps1
-```
-
 ## Google Cloud configuration
 
-The automated readiness checks run at no cost and require no Google Cloud credentials. Authentication is only required for the deliberate live Gemini acceptance test.
+Automated readiness and pre-credit evaluation run at no cost and require no Google Cloud credentials. The credentialled Gemini acceptance test remains deferred until hackathon credits are available for a dedicated CineScout AI project.
 
-Create the local environment file when that test is required:
-
-```powershell
-Copy-Item .env.example .env
-```
-
-The intended configuration is:
+When that condition is met, the intended local environment is:
 
 ```text
 GOOGLE_GENAI_USE_VERTEXAI=true
-GOOGLE_CLOUD_PROJECT=your-project-id
+GOOGLE_CLOUD_PROJECT=your-cinescout-project-id
 GOOGLE_CLOUD_LOCATION=global
 CINESCOUT_MODEL=gemini-3.6-flash
 PARALLEL_MCP_URL=https://search.parallel.ai/mcp
@@ -227,23 +266,16 @@ PARALLEL_MCP_URL=https://search.parallel.ai/mcp
 
 Do not commit `.env`, access tokens or service-account credentials.
 
-For local Vertex AI authentication:
-
-```powershell
-gcloud auth application-default login
-gcloud config set project YOUR_PROJECT_ID
-```
-
 ## Phase 1 live acceptance check
 
-The first credentialled run must demonstrate that:
+The eventual credentialled run must demonstrate that:
 
 - Gemini receives and interprets the production brief;
 - the agent invokes Parallel Search MCP for externally verifiable claims rather than relying on model memory alone;
 - the response identifies its evidence and uncertainty; and
 - the final response explains why the evidence matters to the production decision.
 
-This live run is performed only after local readiness passes and should be used sparingly so that development remains at no cost within the hackathon's available credits and partner allowance.
+Until hackathon credits are available, this is the only Phase 1 acceptance condition intentionally left incomplete.
 
 ## Security
 
@@ -251,7 +283,7 @@ Secrets do not belong in source control. The repository ignores `.env`, local vi
 
 ## Next development phase
 
-Once the Phase 1 vertical slice has been reproduced successfully from a clean local clone, the next phase will separate the current root workflow into specialist agents for brief interpretation, research planning, evidence verification, production-risk assessment and report synthesis. The existing Parallel MCP integration will remain the shared research foundation.
+After the live Phase 1 runtime path is demonstrated, the next phase will separate the current workflow into specialist agents for brief interpretation, research planning, evidence verification, production-risk assessment and report synthesis. The existing Parallel MCP integration and pre-credit evaluation contracts will remain shared foundations.
 
 ## Licence
 

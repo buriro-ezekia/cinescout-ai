@@ -26,6 +26,17 @@ Evidence-backed production intelligence response
 
 A vertical slice reduces integration risk. It proves that Gemini can call the required partner service at runtime and that the resulting evidence reaches the final user-facing response. Multi-agent planning, verification and production-risk specialists can then be introduced without changing the underlying partner integration.
 
+## Current validation status
+
+The local Phase 1 baseline has been reproduced successfully with Python 3.12, Google ADK 2.7.1 and MCP Python SDK 1.29.0. Dependency integrity, compilation, Ruff, the automated test suite and the repository contract all pass locally.
+
+The repository also includes deterministic pre-credit evaluation contracts that make no Gemini request and no external search request. These checks protect the expected research categories, evidence vocabulary and final response structure while Google Cloud hackathon credits are pending.
+
 ## Completion boundary
 
-Phase 1 is complete when the repository contract and automated tests pass and a credentialled local run demonstrates a real Gemini request that invokes Parallel Search MCP. The latter is intentionally a manual smoke test because CI must not consume cloud credentials or external service quotas.
+Phase 1 is complete only when both conditions below are satisfied:
+
+1. the repository contract, offline evaluation contract and automated tests pass; and
+2. a credentialled local run demonstrates a real Gemini request that invokes Parallel Search MCP and uses the returned evidence in the final response.
+
+The second condition remains intentionally deferred until a dedicated Google Cloud project can use the hackathon credits. CI must not consume cloud credentials, model quota or partner-service search quota.

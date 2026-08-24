@@ -1,0 +1,102 @@
+[
+  {
+    "id": "zanzibar-1962",
+    "title": "Zanzibar historical drama, 1962",
+    "brief": "A historical drama is set in Zanzibar in 1962. The script refers to Tanganyika's political status, shows a named vehicle model and names a public institution. Identify what requires factual verification and explain the production implications.",
+    "expected_research_categories": [
+      "historical_context",
+      "institution",
+      "prop_or_technology"
+    ],
+    "required_response_sections": [
+      "Production reading",
+      "Evidence and verification",
+      "Production implications",
+      "Uncertainty or conflicts",
+      "Sources consulted"
+    ]
+  },
+  {
+    "id": "dar-location-logistics",
+    "title": "Dar es Salaam location logistics",
+    "brief": "A production plans a daytime street sequence in central Dar es Salaam involving a camera vehicle, temporary pedestrian control and a named public landmark. Identify the externally verifiable matters before the production team makes a location plan.",
+    "expected_research_categories": [
+      "geography_location",
+      "logistics",
+      "institution"
+    ],
+    "required_response_sections": [
+      "Production reading",
+      "Evidence and verification",
+      "Production implications",
+      "Uncertainty or conflicts",
+      "Sources consulted"
+    ]
+  },
+  {
+    "id": "period-radio-prop",
+    "title": "Period radio and broadcast terminology",
+    "brief": "A period scene uses a branded portable radio and broadcast terminology claimed to be accurate for East Africa in the early 1970s. Determine which details require evidence before the art and dialogue departments rely on them.",
+    "expected_research_categories": [
+      "historical_context",
+      "prop_or_technology",
+      "terminology"
+    ],
+    "required_response_sections": [
+      "Production reading",
+      "Evidence and verification",
+      "Production implications",
+      "Uncertainty or conflicts",
+      "Sources consulted"
+    ]
+  },
+  {
+    "id": "cultural-ceremony-context",
+    "title": "Cultural ceremony context",
+    "brief": "A screenplay contains a community ceremony and assigns specific clothing, titles and gestures to participants. The creative team wants to know which elements need external cultural research and which conclusions should remain qualified rather than presented as authoritative.",
+    "expected_research_categories": [
+      "cultural_context",
+      "terminology"
+    ],
+    "required_response_sections": [
+      "Production reading",
+      "Evidence and verification",
+      "Production implications",
+      "Uncertainty or conflicts",
+      "Sources consulted"
+    ]
+  },
+  {
+    "id": "institution-name-continuity",
+    "title": "Institution naming continuity",
+    "brief": "A screenplay set across two decades uses the same name for a government institution in every scene. Assess what historical and institutional evidence would be needed to verify whether the name remained valid throughout the period.",
+    "expected_research_categories": [
+      "historical_context",
+      "institution",
+      "terminology"
+    ],
+    "required_response_sections": [
+      "Production reading",
+      "Evidence and verification",
+      "Production implications",
+      "Uncertainty or conflicts",
+      "Sources consulted"
+    ]
+  },
+  {
+    "id": "archive-image-rights-context",
+    "title": "Archive image rights context",
+    "brief": "A documentary team plans to reproduce a historical photograph found online and assumes that its age makes it unrestricted. Identify the factual and rights-context questions that require external evidence without presenting the result as legal clearance.",
+    "expected_research_categories": [
+      "historical_context",
+      "rights_context"
+    ],
+    "required_response_sections": [
+      "Production reading",
+      "Evidence and verification",
+      "Production implications",
+      "Uncertainty or conflicts",
+      "Sources consulted"
+    ]
+  }
+]
