@@ -38,11 +38,11 @@ def test_phase2_workflow_contains_exact_sequential_graph() -> None:
     pipeline = create_phase2_pipeline()
 
     assert pipeline.graph is not None
-    actual_edges = tuple(
+    actual_edges = {
         (edge.from_node.name, edge.to_node.name) for edge in pipeline.graph.edges
-    )
+    }
     expected_names = tuple(stage.agent_name for stage in PHASE2_STAGES)
-    expected_edges = tuple(
+    expected_edges = set(
         zip(
             (START.name, *expected_names[:-1]),
             expected_names,
@@ -50,6 +50,7 @@ def test_phase2_workflow_contains_exact_sequential_graph() -> None:
         )
     )
 
+    assert len(actual_edges) == 5
     assert actual_edges == expected_edges
 
 
