@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from app.contracts import EvidenceStatus, REQUIRED_RESPONSE_SECTIONS
+from app.contracts import REQUIRED_RESPONSE_SECTIONS, EvidenceStatus
 from app.phase2.contracts import (
     MAX_RESEARCH_TASKS,
     MAX_WEB_FETCH_CALLS,
