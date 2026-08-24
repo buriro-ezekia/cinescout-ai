@@ -74,15 +74,36 @@ def test_valid_control_detects_source_loss() -> None:
     }
 
 
+def test_partial_research_plan_is_rejected() -> None:
+    scenario = copy.deepcopy(load_resilience_scenarios()[0])
+    scenario["brief_analysis"]["claims"].append(
+        {"claim_id": "c2", "requires_research": True}
+    )
+    scenario["evidence_review"]["claims"].append(
+        {
+            "claim_id": "c2",
+            "status": "insufficient_evidence",
+            "sources": [],
+            "conflict": False,
+            "uncertainty": "No research task was created.",
+        }
+    )
+
+    result = validate_resilience_scenario(scenario)
+
+    assert not result.is_valid
+    assert ResilienceIssueCode.MISSING_RESEARCH_TASK in {
+        issue.code for issue in result.issues
+    }
+
+
 def test_malformed_stage_payload_fails_closed() -> None:
     scenario = copy.deepcopy(load_resilience_scenarios()[0])
     del scenario["evidence_review"]["usage"]
 
     result = validate_resilience_scenario(scenario)
 
-    assert result.issues == (
-        result.issues[0],
-    )
+    assert len(result.issues) == 1
     assert result.issues[0].code is ResilienceIssueCode.MALFORMED_STATE
 
 
