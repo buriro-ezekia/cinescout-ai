@@ -12,9 +12,11 @@ The Phase 1 foundation is locally validated with Python 3.12, Google ADK 2.7.1 a
 
 Parallel connectivity has been demonstrated against the configured MCP endpoint with `web_search` and `web_fetch` advertised while making zero tool invocations and zero Gemini calls.
 
-The remaining Phase 1 acceptance condition is the credentialled Gemini → Parallel runtime proof. That test is intentionally deferred until Google hackathon credits are available for a dedicated CineScout AI Google Cloud project. CineScout therefore does not use an unrelated production billing account while the credits are pending.
+Phase 2 is implemented as a separate five-specialist Google ADK graph `Workflow`. The Phase 1 `app/agent.py` entry point remains unchanged and continues to be the repository default until credentialled acceptance is complete.
 
-Phase 2 is implemented as a separate specialist-agent candidate. The Phase 1 `app/agent.py` entry point remains unchanged and continues to be the repository default until the later credentialled acceptance process is complete.
+Phase 3 adds deterministic resilience evaluation over explicit stage-state snapshots. It tests malformed and incomplete state, unsupported claims, conflicting evidence, confidence non-escalation, source preservation, uncertainty propagation, research and tool budgets, and final-report structure without invoking Gemini or Parallel search.
+
+The remaining live acceptance condition is the credentialled Gemini → Parallel runtime proof. That test is intentionally deferred until Google hackathon credits are available for a dedicated CineScout AI Google Cloud project. CineScout therefore does not use an unrelated production billing account while the credits are pending.
 
 ## Phase 1 foundation
 
@@ -79,6 +81,27 @@ The default Phase 2 research budget is deliberately bounded to a maximum of six 
 
 The Phase 2 specification and acceptance criteria are documented in [`docs/phase2-spec.md`](docs/phase2-spec.md).
 
+## Phase 3 deterministic resilience
+
+Phase 3 validates how the workflow should behave when intermediate state is incomplete, contradictory or unsafe to promote. It does not add another model or runtime agent.
+
+The controlled resilience corpus contains valid controls and deliberately invalid state snapshots. The validator checks that:
+
+- malformed state is rejected rather than silently accepted;
+- every externally verifiable claim receives a research task;
+- every externally verifiable claim reaches evidence review;
+- unsupported claims remain `insufficient_evidence`;
+- conflicting evidence never receives `high` confidence;
+- downstream stages never increase evidence confidence;
+- source attribution for retained claims survives final synthesis;
+- unresolved uncertainty survives risk assessment and final synthesis;
+- research-task, `web_search` and `web_fetch` ceilings remain bounded; and
+- the final report retains the required five-section contract.
+
+The Phase 3 checker compares every fixture with its exact expected failure codes and makes zero Gemini calls and zero external search calls.
+
+The detailed resilience specification is documented in [`docs/phase3-spec.md`](docs/phase3-spec.md).
+
 ## Evidence and response contracts
 
 CineScout uses shared research categories covering:
@@ -127,12 +150,15 @@ The repository is deliberately structured so useful engineering can continue at 
 
 The current at-no-cost engineering layer includes:
 
-- deterministic Phase 1 and Phase 2 repository contracts;
-- a six-scenario evaluation corpus covering all eight research categories;
+- deterministic Phase 1, Phase 2 and Phase 3 repository contracts;
+- a six-scenario research-recognition corpus covering all eight research categories;
+- a fifteen-scenario resilience corpus with valid controls and expected failures;
 - structured specialist state hand-offs;
 - Phase 2 graph-orchestration and tool-ownership tests;
 - explicit single-turn specialist isolation checks;
 - fresh specialist-factory checks;
+- confidence non-escalation and uncertainty-propagation checks;
+- source-preservation and budget-enforcement checks;
 - response-structure and evidence guardrails; and
 - an optional manual Parallel MCP connectivity probe that lists tools without invoking them.
 
@@ -148,22 +174,28 @@ cinescout-ai/
 │   ├── contracts.py
 │   ├── evaluation.py
 │   ├── prompts.py
-│   └── phase2/
-│       ├── agent.py              # five-stage Phase 2 graph Workflow
-│       ├── contracts.py          # stage, state and budget contracts
-│       ├── prompts.py            # specialist instructions
-│       └── tools.py              # fresh Parallel MCP toolset factory
+│   ├── phase2/
+│   │   ├── agent.py              # five-stage Phase 2 graph Workflow
+│   │   ├── contracts.py          # stage, state and budget contracts
+│   │   ├── prompts.py            # specialist instructions
+│   │   └── tools.py              # fresh Parallel MCP toolset factory
+│   └── phase3/
+│       ├── contracts.py          # resilience issue and confidence contracts
+│       └── validation.py         # deterministic state-transition validators
 ├── docs/
 │   ├── phase1.md
 │   ├── phase2-spec.md
+│   ├── phase3-spec.md
 │   └── pre-credit-hardening.md
 ├── evals/
-│   └── scenarios.json
+│   ├── scenarios.json
+│   └── resilience_scenarios.json
 ├── scripts/
 │   ├── check_offline_evals.py
 │   ├── check_parallel_mcp.py
 │   ├── check_phase1.py
 │   ├── check_phase2.py
+│   ├── check_phase3.py
 │   └── local_readiness.ps1
 ├── tests/
 │   ├── integration/
@@ -222,17 +254,19 @@ The readiness suite performs:
 - Python compilation;
 - Ruff linting;
 - the complete automated test suite;
-- the offline evaluation contract;
-- the Phase 1 repository contract; and
-- the Phase 2 offline structural contract.
+- the offline research-recognition evaluation contract;
+- the Phase 1 repository contract;
+- the Phase 2 offline structural contract; and
+- the Phase 3 deterministic resilience contract.
 
-The Phase 2 contract performs no agent execution. It verifies the graph `Workflow`, exact specialist chain, state keys, Parallel ownership, specialist isolation and fresh factory instances while explicitly reporting zero Gemini and external search calls.
+The Phase 2 and Phase 3 contracts perform no agent execution. Together they verify graph structure, state keys, Parallel ownership, specialist isolation, fresh factory instances, malformed-state rejection, confidence non-escalation, source preservation, uncertainty propagation and bounded research behaviour while explicitly reporting zero Gemini and external search calls.
 
 A complete successful run ends with:
 
 ```text
 PHASE1_LOCAL_READINESS=PASS
 PHASE2_OFFLINE_READINESS=PASS
+PHASE3_RESILIENCE_READINESS=PASS
 CINESCOUT_LOCAL_READINESS=PASS
 ```
 
@@ -292,7 +326,7 @@ CINESCOUT_MODEL=gemini-3.6-flash
 PARALLEL_MCP_URL=https://search.parallel.ai/mcp
 ```
 
-The later Phase 2 credentialled acceptance test must demonstrate one complete five-stage execution in which the Evidence Verifier invokes Parallel at runtime and the resulting evidence reaches the Production Risk Agent and Report Synthesiser with sources and uncertainty preserved.
+The later credentialled acceptance test must demonstrate one complete five-stage execution in which the Evidence Verifier invokes Parallel at runtime and the resulting evidence reaches the Production Risk Agent and Report Synthesiser with sources and uncertainty preserved. The Phase 3 invariants then provide the deterministic baseline for live failure-mode evaluation.
 
 ## Security
 
