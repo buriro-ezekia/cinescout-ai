@@ -98,6 +98,20 @@ def test_phase2_uses_graph_workflow_not_deprecated_sequential_agent() -> None:
     assert "app = phase2_app" in source
 
 
+def test_phase2_uses_adk_271_public_workflow_import_surface() -> None:
+    paths = (
+        Path("app/phase2/agent.py"),
+        Path("scripts/check_phase2.py"),
+        Path("tests/integration/test_phase2_agent_import.py"),
+    )
+
+    for path in paths:
+        source = path.read_text(encoding="utf-8")
+        assert "from google.adk import START" not in source
+        assert "from google.adk.workflow import START" in source
+        assert "from google.adk import Workflow" in source
+
+
 def test_phase2_check_runs_outside_repository_root(tmp_path: Path) -> None:
     repository_root = Path(__file__).resolve().parents[2]
     script = repository_root / "scripts" / "check_phase2.py"
@@ -111,6 +125,7 @@ def test_phase2_check_runs_outside_repository_root(tmp_path: Path) -> None:
     )
 
     assert result.returncode == 0, result.stderr
+    assert "PHASE2_ADK_IMPORT_SURFACE=PASS" in result.stdout
     assert "PHASE2_ORCHESTRATOR=Workflow" in result.stdout
     assert "PHASE2_SPECIALISTS=5" in result.stdout
     assert "PHASE2_PARALLEL_OWNER=evidence_verifier" in result.stdout
