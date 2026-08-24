@@ -132,3 +132,7 @@ phase2_app = App(
     root_agent=phase2_root_agent,
     name="phase2_app",
 )
+
+# Conventional ADK loader exports for running this candidate directly later.
+root_agent = phase2_root_agent
+app = phase2_app
