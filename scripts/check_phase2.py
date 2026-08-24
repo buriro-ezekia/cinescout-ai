@@ -9,8 +9,9 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from google.adk import START, Workflow  # noqa: E402
+from google.adk import Workflow  # noqa: E402
 from google.adk.tools.mcp_tool.mcp_toolset import McpToolset  # noqa: E402
+from google.adk.workflow import START  # noqa: E402
 
 from app.phase2.agent import (  # noqa: E402
     app,
@@ -69,6 +70,7 @@ def main() -> int:
 
     checks = (
         isinstance(pipeline, Workflow),
+        START.name == "__START__",
         len(specialists) == 5,
         actual_names == expected_names,
         actual_keys == expected_keys,
@@ -89,6 +91,7 @@ def main() -> int:
         print(f"PHASE2_ACTUAL_EDGES={sorted(actual_edges)}")
         return 1
 
+    print("PHASE2_ADK_IMPORT_SURFACE=PASS")
     print("PHASE2_ORCHESTRATOR=Workflow")
     print("PHASE2_SPECIALISTS=5")
     print("PHASE2_STAGE_ORDER=" + ",".join(stage.role.value for stage in PHASE2_STAGES))
