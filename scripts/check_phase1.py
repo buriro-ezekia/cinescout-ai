@@ -1,4 +1,4 @@
-"""Perform a fast, no-cost readiness check for the Phase 1 repository."""
+"""Perform a fast readiness check for the Phase 1 repository at no cost."""
 
 from __future__ import annotations
 
@@ -29,7 +29,10 @@ def main() -> int:
     print("PARALLEL_MCP_URL=" + os.getenv("PARALLEL_MCP_URL", "https://search.parallel.ai/mcp"))
     print("GOOGLE_CLOUD_PROJECT_SET=" + str(bool(os.getenv("GOOGLE_CLOUD_PROJECT"))).lower())
     print("LIVE_MODEL_TEST=NOT_RUN")
-    print("Reason: credentials and external calls are intentionally excluded from the no-cost check.")
+    print(
+        "Reason: credentials and external calls are intentionally excluded "
+        "from this at-no-cost check."
+    )
     return 0
 
 
