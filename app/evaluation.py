@@ -43,7 +43,10 @@ def _parse_scenario(raw: Any) -> EvaluationScenario:
     sections_raw = raw.get("required_response_sections")
     if not isinstance(sections_raw, list):
         raise ValueError("required_response_sections must be a list")
-    sections = tuple(_as_non_empty_string(item, "required_response_sections item") for item in sections_raw)
+    sections = tuple(
+        _as_non_empty_string(item, "required_response_sections item")
+        for item in sections_raw
+    )
 
     if sections != REQUIRED_RESPONSE_SECTIONS:
         raise ValueError("required_response_sections must match the Phase 1 response contract")
@@ -75,4 +78,8 @@ def missing_response_sections(response_text: str) -> tuple[str, ...]:
     """Return required response headings that are absent from an agent response."""
 
     normalised = response_text.casefold()
-    return tuple(section for section in REQUIRED_RESPONSE_SECTIONS if section.casefold() not in normalised)
+    return tuple(
+        section
+        for section in REQUIRED_RESPONSE_SECTIONS
+        if section.casefold() not in normalised
+    )
