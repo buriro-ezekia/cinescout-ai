@@ -88,12 +88,31 @@ def test_partial_research_plan_is_rejected() -> None:
             "uncertainty": "No research task was created.",
         }
     )
+    scenario["risk_assessment"]["claims"].append(
+        {
+            "claim_id": "c2",
+            "status": "insufficient_evidence",
+            "uncertainty": "No research task was created.",
+        }
+    )
 
     result = validate_resilience_scenario(scenario)
 
     assert not result.is_valid
-    assert ResilienceIssueCode.MISSING_RESEARCH_TASK in {
-        issue.code for issue in result.issues
+    assert {issue.code for issue in result.issues} == {
+        ResilienceIssueCode.MISSING_RESEARCH_TASK
+    }
+
+
+def test_missing_production_risk_state_is_rejected() -> None:
+    scenario = copy.deepcopy(load_resilience_scenarios()[0])
+    scenario["risk_assessment"]["claims"] = []
+
+    result = validate_resilience_scenario(scenario)
+
+    assert not result.is_valid
+    assert {issue.code for issue in result.issues} == {
+        ResilienceIssueCode.MISSING_RISK_ASSESSMENT
     }
 
 
