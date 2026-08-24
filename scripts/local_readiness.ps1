@@ -43,6 +43,7 @@ Invoke-Step "PIP CHECK" { python -m pip check }
 Invoke-Step "COMPILE" { python -m compileall -q app scripts tests }
 Invoke-Step "RUFF" { python -m ruff check app scripts tests }
 Invoke-Step "PYTEST" { python -m pytest -q }
+Invoke-Step "OFFLINE EVALUATION CONTRACT" { python scripts/check_offline_evals.py }
 Invoke-Step "REPOSITORY CONTRACT" { python scripts/check_phase1.py }
 
 Write-Host "`n============================================================"
