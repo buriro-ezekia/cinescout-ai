@@ -40,7 +40,9 @@ def test_only_evidence_verifier_has_parallel_toolset() -> None:
     )
 
     for index, agent in enumerate(agents):
-        toolsets = [tool for tool in agent.tools if isinstance(tool, McpToolset)]
+        toolsets = [
+            tool for tool in (agent.tools or []) if isinstance(tool, McpToolset)
+        ]
         if index == evidence_index:
             assert len(toolsets) == 1
         else:
