@@ -41,6 +41,8 @@ Google ADK `Workflow` provides the orchestration layer. The graph is a strict ch
 
 Every specialist is created through a factory function and is explicitly configured as a `single_turn` workflow node with `include_contents="none"`. Each specialist therefore receives the immediate workflow input and the state values referenced by its instruction without inheriting unrelated conversation history.
 
+The module exports both descriptive names (`phase2_root_agent`, `phase2_app`) and the conventional ADK loader names (`root_agent`, `app`). This keeps Phase 2 separately runnable later without changing the repository's default Phase 1 entry point.
+
 ## Responsibilities
 
 ### Brief Interpreter
@@ -117,10 +119,11 @@ Phase 2 offline implementation is complete when all of the following are true:
 6. The Evidence Verifier is explicitly instructed to research externally verifiable claims and preserve evidence uncertainty.
 7. The Report Synthesiser is explicitly constrained to the existing five-section response contract.
 8. The Phase 1 `app/agent.py` entry point remains unchanged by Phase 2 implementation.
-9. Local readiness includes a Phase 2 structural contract check that makes zero Gemini calls and zero external search calls.
-10. Automated tests verify graph order, state keys, tool ownership, specialist isolation, factory isolation and the at-no-cost execution boundary.
-11. README and Phase 2 documentation describe the architecture accurately in professional UK English.
-12. Phase 2 production code contains no dependency on deprecated `SequentialAgent` orchestration.
+9. The Phase 2 module exports conventional ADK `root_agent` and `app` names without replacing Phase 1 defaults.
+10. Local readiness includes a Phase 2 structural contract check that makes zero Gemini calls and zero external search calls.
+11. Automated tests verify graph order, state keys, tool ownership, specialist isolation, factory isolation, ADK exports and the at-no-cost execution boundary.
+12. README and Phase 2 documentation describe the architecture accurately in professional UK English.
+13. Phase 2 production code contains no dependency on deprecated `SequentialAgent` orchestration.
 
 ## Deferred live acceptance
 
