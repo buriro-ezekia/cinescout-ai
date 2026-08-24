@@ -14,6 +14,7 @@ REQUIRED_FILES = [
     "app/contracts.py",
     "app/evaluation.py",
     "app/prompts.py",
+    "docs/pre-credit-hardening.md",
     "evals/scenarios.json",
     "scripts/check_offline_evals.py",
     "scripts/check_parallel_mcp.py",
