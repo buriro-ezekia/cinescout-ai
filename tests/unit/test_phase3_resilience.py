@@ -126,6 +126,16 @@ def test_malformed_stage_payload_fails_closed() -> None:
     assert result.issues[0].code is ResilienceIssueCode.MALFORMED_STATE
 
 
+def test_malformed_confidence_value_fails_closed() -> None:
+    scenario = copy.deepcopy(load_resilience_scenarios()[0])
+    scenario["evidence_review"]["claims"][0]["status"] = []
+
+    result = validate_resilience_scenario(scenario)
+
+    assert len(result.issues) == 1
+    assert result.issues[0].code is ResilienceIssueCode.MALFORMED_STATE
+
+
 def test_phase3_check_runs_outside_repository_root(tmp_path: Path) -> None:
     repository_root = Path(__file__).resolve().parents[2]
     script = repository_root / "scripts" / "check_phase3.py"
