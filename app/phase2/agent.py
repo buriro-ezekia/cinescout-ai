@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from google.adk import START, Workflow
+from google.adk import Workflow
 from google.adk.agents import Agent
 from google.adk.apps import App
 from google.adk.models import Gemini
+from google.adk.workflow import START
 from google.genai import types
 
 from app.config import settings
