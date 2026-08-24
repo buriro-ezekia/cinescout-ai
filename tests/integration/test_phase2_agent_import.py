@@ -8,10 +8,12 @@ from google.adk import START, Workflow
 from google.adk.tools.mcp_tool.mcp_toolset import McpToolset
 
 from app.phase2.agent import (
+    app,
     create_phase2_pipeline,
     create_phase2_specialists,
     phase2_app,
     phase2_root_agent,
+    root_agent,
 )
 from app.phase2.contracts import PHASE2_STAGES, SpecialistRole
 
@@ -20,6 +22,8 @@ def test_phase2_application_imports_without_live_calls() -> None:
     assert isinstance(phase2_root_agent, Workflow)
     assert phase2_root_agent.name == "cinescout_phase2_pipeline"
     assert phase2_app.name == "phase2_app"
+    assert root_agent is phase2_root_agent
+    assert app is phase2_app
 
 
 def test_phase2_pipeline_matches_specialist_contract() -> None:
