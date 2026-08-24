@@ -4,7 +4,7 @@ CineScout AI can continue to make meaningful engineering progress before Google 
 
 ## Purpose
 
-The pre-credit hardening layer prepares the repository for the eventual credentialled Gemini → Parallel acceptance tests without weakening the project's evidence requirements or introducing a substitute model. It concentrates on deterministic contracts, controlled evaluation scenarios, dependency integrity, specialist-workflow structure and partner-connectivity checks.
+The pre-credit hardening layer prepares the repository for the eventual credentialled Gemini → Parallel acceptance tests without weakening the project's evidence requirements or introducing a substitute model. It concentrates on deterministic contracts, controlled evaluation scenarios, dependency integrity, specialist-workflow structure, resilience testing and partner-connectivity checks.
 
 ## At-no-cost validation boundary
 
@@ -30,9 +30,14 @@ Phase 1 repository contract
     |
     v
 Phase 2 graph-workflow contract
+    |
+    v
+Phase 3 resilience contract
 ```
 
 The controlled corpus in `evals/scenarios.json` covers historical context, cultural context, geography and locations, institutions, props or technology, terminology, logistics and rights context. These scenarios do not attempt to answer the research questions offline. Instead, they define what later live evaluations must recognise and how the final response must be structured.
+
+The resilience corpus in `evals/resilience_scenarios.json` contains explicit stage-state snapshots with both valid controls and deliberate failures. It verifies how the workflow should behave when research state is malformed, incomplete, conflicting, unsupported or over budget.
 
 ## Production-research contract
 
@@ -58,6 +63,25 @@ The required response sections remain:
 Phase 2 is implemented as a graph-based Google ADK `Workflow` with five specialist LLM nodes. Structural validation may construct the workflow and inspect its graph, state keys, tool ownership and specialist configuration, but it must not execute an agent.
 
 Only the Evidence Verifier owns Parallel Search MCP. All specialists are isolated `single_turn` workflow nodes with `include_contents="none"`. The offline contract therefore validates architecture without consuming Gemini or Parallel search capacity.
+
+## Phase 3 resilience boundary
+
+Phase 3 does not construct or execute the ADK workflow. Its validator consumes only deterministic JSON state snapshots and the shared Phase 2 budget constants.
+
+The Phase 3 contract fails closed when it detects:
+
+- malformed stage state;
+- an empty or partial research plan for externally verifiable claims;
+- missing evidence-stage output;
+- unsupported evidence promoted above `insufficient_evidence`;
+- conflicting evidence promoted to `high` confidence;
+- downstream confidence escalation;
+- lost source attribution;
+- lost uncertainty;
+- research-task or tool-call budget violations; or
+- a broken final-report section contract.
+
+The checker records zero Gemini calls and zero external search calls, so resilience testing remains deterministic and reproducible.
 
 ## Optional Parallel connectivity probe
 
