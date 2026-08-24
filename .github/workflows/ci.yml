@@ -44,3 +44,6 @@ jobs:
 
       - name: Check Phase 2 offline contract
         run: python scripts/check_phase2.py
+
+      - name: Check Phase 3 resilience contract
+        run: python scripts/check_phase3.py
