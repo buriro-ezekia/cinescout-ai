@@ -3,8 +3,10 @@
 from importlib.metadata import version
 
 import pytest
+from packaging.version import Version
 
 pytest.importorskip("google.adk")
+pytest.importorskip("mcp")
 
 
 def test_supported_mcp_toolset_import_path() -> None:
@@ -13,8 +15,10 @@ def test_supported_mcp_toolset_import_path() -> None:
     assert McpToolset.__name__ == "McpToolset"
 
 
-def test_adk_version_matches_phase1_pin() -> None:
+def test_adk_and_mcp_versions_match_phase1_baseline() -> None:
     assert version("google-adk") == "2.7.1"
+    mcp_version = Version(version("mcp"))
+    assert Version("1.24.0") <= mcp_version < Version("2.0.0")
 
 
 def test_adk_application_imports() -> None:
