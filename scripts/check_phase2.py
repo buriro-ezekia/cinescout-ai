@@ -50,24 +50,25 @@ def main() -> int:
         for agent in specialists
     )
 
-    expected_edges = tuple(
+    expected_edges = set(
         zip(
             (START.name, *expected_names[:-1]),
             expected_names,
             strict=True,
         )
     )
-    actual_edges: tuple[tuple[str, str], ...] = ()
+    actual_edges: set[tuple[str, str]] = set()
     if pipeline.graph is not None:
-        actual_edges = tuple(
+        actual_edges = {
             (edge.from_node.name, edge.to_node.name) for edge in pipeline.graph.edges
-        )
+        }
 
     checks = (
         isinstance(pipeline, Workflow),
         len(specialists) == 5,
         actual_names == expected_names,
         actual_keys == expected_keys,
+        len(actual_edges) == 5,
         actual_edges == expected_edges,
         tuple(parallel_owners) == (SpecialistRole.EVIDENCE_VERIFIER,),
         fresh_specialists,
@@ -79,7 +80,7 @@ def main() -> int:
         print("PHASE2_STAGE_ORDER=" + ",".join(actual_names))
         print("PHASE2_OUTPUT_KEYS=" + ",".join(str(key) for key in actual_keys))
         print("PHASE2_PARALLEL_OWNERS=" + ",".join(role.value for role in parallel_owners))
-        print(f"PHASE2_ACTUAL_EDGES={actual_edges}")
+        print(f"PHASE2_ACTUAL_EDGES={sorted(actual_edges)}")
         return 1
 
     print("PHASE2_ORCHESTRATOR=Workflow")
