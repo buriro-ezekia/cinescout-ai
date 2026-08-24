@@ -1,5 +1,7 @@
 """Repository contracts for the CineScout AI Phase 2 specialist workflow."""
 
+import subprocess
+import sys
 from pathlib import Path
 
 from app.contracts import REQUIRED_RESPONSE_SECTIONS
@@ -73,3 +75,23 @@ def test_phase1_default_entrypoint_remains_phase1() -> None:
     source = Path("app/agent.py").read_text(encoding="utf-8")
     assert 'name="cinescout_phase1"' in source
     assert "app.phase2" not in source
+
+
+def test_phase2_check_runs_outside_repository_root(tmp_path: Path) -> None:
+    repository_root = Path(__file__).resolve().parents[2]
+    script = repository_root / "scripts" / "check_phase2.py"
+
+    result = subprocess.run(
+        [sys.executable, str(script)],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "PHASE2_SPECIALISTS=5" in result.stdout
+    assert "PHASE2_PARALLEL_OWNER=evidence_verifier" in result.stdout
+    assert "PHASE2_GEMINI_CALLS=0" in result.stdout
+    assert "PHASE2_EXTERNAL_SEARCH_CALLS=0" in result.stdout
+    assert "PHASE2_OFFLINE_CONTRACT=PASS" in result.stdout
