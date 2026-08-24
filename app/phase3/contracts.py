@@ -13,6 +13,7 @@ class ResilienceIssueCode(StrEnum):
 
     MALFORMED_STATE = "malformed_state"
     EMPTY_PLAN_WITH_RESEARCH = "empty_plan_with_research"
+    MISSING_RESEARCH_TASK = "missing_research_task"
     UNKNOWN_TASK_CLAIM = "unknown_task_claim"
     DUPLICATE_IDENTIFIER = "duplicate_identifier"
     MISSING_EVIDENCE = "missing_evidence"
