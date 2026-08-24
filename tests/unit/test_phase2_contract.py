@@ -94,6 +94,8 @@ def test_phase2_uses_graph_workflow_not_deprecated_sequential_agent() -> None:
     assert "SequentialAgent" not in source
     assert 'mode="single_turn"' in source
     assert 'include_contents="none"' in source
+    assert "root_agent = phase2_root_agent" in source
+    assert "app = phase2_app" in source
 
 
 def test_phase2_check_runs_outside_repository_root(tmp_path: Path) -> None:
@@ -113,6 +115,7 @@ def test_phase2_check_runs_outside_repository_root(tmp_path: Path) -> None:
     assert "PHASE2_SPECIALISTS=5" in result.stdout
     assert "PHASE2_PARALLEL_OWNER=evidence_verifier" in result.stdout
     assert "PHASE2_AGENT_ISOLATION=PASS" in result.stdout
+    assert "PHASE2_ADK_EXPORTS=PASS" in result.stdout
     assert "PHASE2_GEMINI_CALLS=0" in result.stdout
     assert "PHASE2_EXTERNAL_SEARCH_CALLS=0" in result.stdout
     assert "PHASE2_OFFLINE_CONTRACT=PASS" in result.stdout
