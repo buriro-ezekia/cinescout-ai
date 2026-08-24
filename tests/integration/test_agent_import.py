@@ -20,8 +20,8 @@ def test_adk_version_matches_phase1_pin() -> None:
 def test_adk_application_imports() -> None:
     from google.adk.tools.mcp_tool.mcp_toolset import McpToolset
 
-    from app.agent import app, root_agent
+    from app.agent import app, parallel_search, root_agent
 
     assert root_agent.name == "cinescout_phase1"
     assert app.name == "app"
-    assert isinstance(root_agent.tools[0], McpToolset)
+    assert isinstance(parallel_search, McpToolset)
