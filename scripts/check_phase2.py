@@ -30,7 +30,8 @@ def main() -> int:
 
     parallel_owners = []
     for stage, agent in zip(PHASE2_STAGES, agents, strict=True):
-        if any(isinstance(tool, McpToolset) for tool in agent.tools):
+        tools = agent.tools or []
+        if any(isinstance(tool, McpToolset) for tool in tools):
             parallel_owners.append(stage.role)
 
     fresh_children = all(
