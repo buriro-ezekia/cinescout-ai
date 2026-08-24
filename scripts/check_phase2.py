@@ -13,8 +13,12 @@ from google.adk import START, Workflow  # noqa: E402
 from google.adk.tools.mcp_tool.mcp_toolset import McpToolset  # noqa: E402
 
 from app.phase2.agent import (  # noqa: E402
+    app,
     create_phase2_pipeline,
     create_phase2_specialists,
+    phase2_app,
+    phase2_root_agent,
+    root_agent,
 )
 from app.phase2.contracts import PHASE2_STAGES, SpecialistRole  # noqa: E402
 
@@ -73,6 +77,8 @@ def main() -> int:
         tuple(parallel_owners) == (SpecialistRole.EVIDENCE_VERIFIER,),
         fresh_specialists,
         isolated_specialists,
+        root_agent is phase2_root_agent,
+        app is phase2_app,
     )
 
     if not all(checks):
@@ -91,6 +97,7 @@ def main() -> int:
     print("PHASE2_GRAPH_CHAIN=PASS")
     print("PHASE2_FACTORY_ISOLATION=PASS")
     print("PHASE2_AGENT_ISOLATION=PASS")
+    print("PHASE2_ADK_EXPORTS=PASS")
     print("PHASE2_GEMINI_CALLS=0")
     print("PHASE2_EXTERNAL_SEARCH_CALLS=0")
     print("PHASE2_OFFLINE_CONTRACT=PASS")
