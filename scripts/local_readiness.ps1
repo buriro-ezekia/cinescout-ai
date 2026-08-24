@@ -1,4 +1,4 @@
-# Purpose: validate CineScout AI Phase 1 locally at no cost and without Codespaces.
+# Purpose: validate CineScout AI locally at no cost and without Codespaces.
 $ErrorActionPreference = "Stop"
 
 function Invoke-Step {
@@ -17,7 +17,7 @@ function Invoke-Step {
 }
 
 Write-Host "============================================================"
-Write-Host "CINESCOUT AI - PHASE 1 LOCAL READINESS"
+Write-Host "CINESCOUT AI - LOCAL READINESS"
 Write-Host "============================================================"
 
 Write-Host "`n--- ENVIRONMENT ---"
@@ -44,8 +44,11 @@ Invoke-Step "COMPILE" { python -m compileall -q app scripts tests }
 Invoke-Step "RUFF" { python -m ruff check app scripts tests }
 Invoke-Step "PYTEST" { python -m pytest -q }
 Invoke-Step "OFFLINE EVALUATION CONTRACT" { python scripts/check_offline_evals.py }
-Invoke-Step "REPOSITORY CONTRACT" { python scripts/check_phase1.py }
+Invoke-Step "PHASE 1 REPOSITORY CONTRACT" { python scripts/check_phase1.py }
+Invoke-Step "PHASE 2 OFFLINE CONTRACT" { python scripts/check_phase2.py }
 
 Write-Host "`n============================================================"
 Write-Host "PHASE1_LOCAL_READINESS=PASS"
+Write-Host "PHASE2_OFFLINE_READINESS=PASS"
+Write-Host "CINESCOUT_LOCAL_READINESS=PASS"
 Write-Host "============================================================"
