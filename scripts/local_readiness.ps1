@@ -46,9 +46,11 @@ Invoke-Step "PYTEST" { python -m pytest -q }
 Invoke-Step "OFFLINE EVALUATION CONTRACT" { python scripts/check_offline_evals.py }
 Invoke-Step "PHASE 1 REPOSITORY CONTRACT" { python scripts/check_phase1.py }
 Invoke-Step "PHASE 2 OFFLINE CONTRACT" { python scripts/check_phase2.py }
+Invoke-Step "PHASE 3 RESILIENCE CONTRACT" { python scripts/check_phase3.py }
 
 Write-Host "`n============================================================"
 Write-Host "PHASE1_LOCAL_READINESS=PASS"
 Write-Host "PHASE2_OFFLINE_READINESS=PASS"
+Write-Host "PHASE3_RESILIENCE_READINESS=PASS"
 Write-Host "CINESCOUT_LOCAL_READINESS=PASS"
 Write-Host "============================================================"
