@@ -9,7 +9,10 @@ def test_controlled_evaluation_corpus_is_valid() -> None:
 
     assert len(scenarios) >= 6
     assert len({scenario.scenario_id for scenario in scenarios}) == len(scenarios)
-    assert all(scenario.required_response_sections == REQUIRED_RESPONSE_SECTIONS for scenario in scenarios)
+    assert all(
+        scenario.required_response_sections == REQUIRED_RESPONSE_SECTIONS
+        for scenario in scenarios
+    )
     assert all(scenario.expected_research_categories for scenario in scenarios)
 
 
