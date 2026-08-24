@@ -130,7 +130,7 @@ def _valid_shape(scenario: dict[str, Any]) -> bool:
             return False
         try:
             _status(claim.get("status", ""))
-        except ValueError:
+        except (TypeError, ValueError):
             return False
 
     usage = evidence["usage"]
@@ -148,7 +148,7 @@ def _valid_shape(scenario: dict[str, Any]) -> bool:
             return False
         try:
             _status(claim.get("status", ""))
-        except ValueError:
+        except (TypeError, ValueError):
             return False
 
     claim_statuses = report["claim_statuses"]
