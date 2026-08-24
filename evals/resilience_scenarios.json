@@ -1,0 +1,342 @@
+[
+  {
+    "id": "valid_supported_claim_preserves_sources",
+    "description": "A supported historical claim keeps confidence and source attribution through the final report.",
+    "properties": ["confidence_non_escalation", "source_preservation", "final_report_contract"],
+    "expected_valid": true,
+    "expected_issue_codes": [],
+    "brief_analysis": {"claims": [{"claim_id": "c1", "requires_research": true}]},
+    "research_plan": {"tasks": [{"task_id": "t1", "claim_id": "c1"}]},
+    "evidence_review": {
+      "claims": [{"claim_id": "c1", "status": "high", "sources": ["s1", "s2"], "conflict": false, "uncertainty": ""}],
+      "usage": {"web_search_calls": 1, "web_fetch_calls": 1}
+    },
+    "risk_assessment": {"claims": [{"claim_id": "c1", "status": "high", "uncertainty": ""}]},
+    "final_report": {
+      "retained_claim_ids": ["c1"],
+      "claim_statuses": {"c1": "high"},
+      "source_ids": ["s1", "s2"],
+      "unresolved_claim_ids": [],
+      "sections": ["Production reading", "Evidence and verification", "Production implications", "Uncertainty or conflicts", "Sources consulted"]
+    }
+  },
+  {
+    "id": "valid_empty_plan_for_creative_only_brief",
+    "description": "A purely creative brief may legitimately produce an empty research plan.",
+    "properties": ["empty_plan_handling", "final_report_contract"],
+    "expected_valid": true,
+    "expected_issue_codes": [],
+    "brief_analysis": {"claims": [{"claim_id": "c1", "requires_research": false}]},
+    "research_plan": {"tasks": []},
+    "evidence_review": {"claims": [], "usage": {"web_search_calls": 0, "web_fetch_calls": 0}},
+    "risk_assessment": {"claims": []},
+    "final_report": {
+      "retained_claim_ids": [],
+      "claim_statuses": {},
+      "source_ids": [],
+      "unresolved_claim_ids": [],
+      "sections": ["Production reading", "Evidence and verification", "Production implications", "Uncertainty or conflicts", "Sources consulted"]
+    }
+  },
+  {
+    "id": "valid_conflicting_evidence_preserves_uncertainty",
+    "description": "Conflicting evidence remains below high confidence and carries uncertainty downstream.",
+    "properties": ["conflicting_evidence_handling", "confidence_non_escalation", "uncertainty_propagation", "source_preservation"],
+    "expected_valid": true,
+    "expected_issue_codes": [],
+    "brief_analysis": {"claims": [{"claim_id": "c1", "requires_research": true}]},
+    "research_plan": {"tasks": [{"task_id": "t1", "claim_id": "c1"}]},
+    "evidence_review": {
+      "claims": [{"claim_id": "c1", "status": "medium", "sources": ["s1", "s2"], "conflict": true, "uncertainty": "Sources disagree on the exact date."}],
+      "usage": {"web_search_calls": 1, "web_fetch_calls": 1}
+    },
+    "risk_assessment": {"claims": [{"claim_id": "c1", "status": "medium", "uncertainty": "Exact date remains disputed."}]},
+    "final_report": {
+      "retained_claim_ids": ["c1"],
+      "claim_statuses": {"c1": "medium"},
+      "source_ids": ["s1", "s2"],
+      "unresolved_claim_ids": ["c1"],
+      "sections": ["Production reading", "Evidence and verification", "Production implications", "Uncertainty or conflicts", "Sources consulted"]
+    }
+  },
+  {
+    "id": "valid_unsupported_claim_remains_insufficient",
+    "description": "A researched claim with no supporting source remains insufficient evidence throughout.",
+    "properties": ["unsupported_claim_handling", "uncertainty_propagation", "confidence_non_escalation"],
+    "expected_valid": true,
+    "expected_issue_codes": [],
+    "brief_analysis": {"claims": [{"claim_id": "c1", "requires_research": true}]},
+    "research_plan": {"tasks": [{"task_id": "t1", "claim_id": "c1"}]},
+    "evidence_review": {
+      "claims": [{"claim_id": "c1", "status": "insufficient_evidence", "sources": [], "conflict": false, "uncertainty": "No reliable source was found."}],
+      "usage": {"web_search_calls": 1, "web_fetch_calls": 0}
+    },
+    "risk_assessment": {"claims": [{"claim_id": "c1", "status": "insufficient_evidence", "uncertainty": "The claim remains unsupported."}]},
+    "final_report": {
+      "retained_claim_ids": ["c1"],
+      "claim_statuses": {"c1": "insufficient_evidence"},
+      "source_ids": [],
+      "unresolved_claim_ids": ["c1"],
+      "sections": ["Production reading", "Evidence and verification", "Production implications", "Uncertainty or conflicts", "Sources consulted"]
+    }
+  },
+  {
+    "id": "invalid_malformed_state",
+    "description": "A malformed final-report payload is rejected immediately.",
+    "properties": ["malformed_state_rejection"],
+    "expected_valid": false,
+    "expected_issue_codes": ["malformed_state"],
+    "brief_analysis": {"claims": []},
+    "research_plan": {"tasks": []},
+    "evidence_review": {"claims": [], "usage": {"web_search_calls": 0, "web_fetch_calls": 0}},
+    "risk_assessment": {"claims": []},
+    "final_report": {
+      "retained_claim_ids": [],
+      "claim_statuses": {},
+      "source_ids": [],
+      "unresolved_claim_ids": []
+    }
+  },
+  {
+    "id": "invalid_empty_plan_with_verifiable_claim",
+    "description": "A verifiable claim cannot silently pass through an empty research plan.",
+    "properties": ["empty_plan_handling"],
+    "expected_valid": false,
+    "expected_issue_codes": ["empty_plan_with_research"],
+    "brief_analysis": {"claims": [{"claim_id": "c1", "requires_research": true}]},
+    "research_plan": {"tasks": []},
+    "evidence_review": {
+      "claims": [{"claim_id": "c1", "status": "insufficient_evidence", "sources": [], "conflict": false, "uncertainty": "No research task was created."}],
+      "usage": {"web_search_calls": 0, "web_fetch_calls": 0}
+    },
+    "risk_assessment": {"claims": [{"claim_id": "c1", "status": "insufficient_evidence", "uncertainty": "Research was not performed."}]},
+    "final_report": {
+      "retained_claim_ids": ["c1"],
+      "claim_statuses": {"c1": "insufficient_evidence"},
+      "source_ids": [],
+      "unresolved_claim_ids": ["c1"],
+      "sections": ["Production reading", "Evidence and verification", "Production implications", "Uncertainty or conflicts", "Sources consulted"]
+    }
+  },
+  {
+    "id": "invalid_missing_evidence_stage_output",
+    "description": "A planned verifiable claim must reach the evidence-review state.",
+    "properties": ["malformed_state_rejection"],
+    "expected_valid": false,
+    "expected_issue_codes": ["missing_evidence"],
+    "brief_analysis": {"claims": [{"claim_id": "c1", "requires_research": true}]},
+    "research_plan": {"tasks": [{"task_id": "t1", "claim_id": "c1"}]},
+    "evidence_review": {"claims": [], "usage": {"web_search_calls": 1, "web_fetch_calls": 0}},
+    "risk_assessment": {"claims": []},
+    "final_report": {
+      "retained_claim_ids": [],
+      "claim_statuses": {},
+      "source_ids": [],
+      "unresolved_claim_ids": [],
+      "sections": ["Production reading", "Evidence and verification", "Production implications", "Uncertainty or conflicts", "Sources consulted"]
+    }
+  },
+  {
+    "id": "invalid_unsupported_claim_promoted",
+    "description": "A claim with no supporting sources cannot be labelled low, medium or high confidence.",
+    "properties": ["unsupported_claim_handling"],
+    "expected_valid": false,
+    "expected_issue_codes": ["unsupported_promoted"],
+    "brief_analysis": {"claims": [{"claim_id": "c1", "requires_research": true}]},
+    "research_plan": {"tasks": [{"task_id": "t1", "claim_id": "c1"}]},
+    "evidence_review": {
+      "claims": [{"claim_id": "c1", "status": "low", "sources": [], "conflict": false, "uncertainty": ""}],
+      "usage": {"web_search_calls": 1, "web_fetch_calls": 0}
+    },
+    "risk_assessment": {"claims": [{"claim_id": "c1", "status": "low", "uncertainty": ""}]},
+    "final_report": {
+      "retained_claim_ids": ["c1"],
+      "claim_statuses": {"c1": "low"},
+      "source_ids": [],
+      "unresolved_claim_ids": [],
+      "sections": ["Production reading", "Evidence and verification", "Production implications", "Uncertainty or conflicts", "Sources consulted"]
+    }
+  },
+  {
+    "id": "invalid_conflicting_evidence_promoted_high",
+    "description": "Conflicting evidence cannot receive high confidence.",
+    "properties": ["conflicting_evidence_handling", "uncertainty_propagation"],
+    "expected_valid": false,
+    "expected_issue_codes": ["conflict_promoted_high"],
+    "brief_analysis": {"claims": [{"claim_id": "c1", "requires_research": true}]},
+    "research_plan": {"tasks": [{"task_id": "t1", "claim_id": "c1"}]},
+    "evidence_review": {
+      "claims": [{"claim_id": "c1", "status": "high", "sources": ["s1", "s2"], "conflict": true, "uncertainty": "Sources conflict."}],
+      "usage": {"web_search_calls": 1, "web_fetch_calls": 1}
+    },
+    "risk_assessment": {"claims": [{"claim_id": "c1", "status": "high", "uncertainty": "Sources conflict."}]},
+    "final_report": {
+      "retained_claim_ids": ["c1"],
+      "claim_statuses": {"c1": "high"},
+      "source_ids": ["s1", "s2"],
+      "unresolved_claim_ids": ["c1"],
+      "sections": ["Production reading", "Evidence and verification", "Production implications", "Uncertainty or conflicts", "Sources consulted"]
+    }
+  },
+  {
+    "id": "invalid_downstream_confidence_escalation",
+    "description": "Risk assessment and synthesis cannot raise confidence above the evidence review.",
+    "properties": ["confidence_non_escalation"],
+    "expected_valid": false,
+    "expected_issue_codes": ["confidence_escalation"],
+    "brief_analysis": {"claims": [{"claim_id": "c1", "requires_research": true}]},
+    "research_plan": {"tasks": [{"task_id": "t1", "claim_id": "c1"}]},
+    "evidence_review": {
+      "claims": [{"claim_id": "c1", "status": "low", "sources": ["s1"], "conflict": false, "uncertainty": ""}],
+      "usage": {"web_search_calls": 1, "web_fetch_calls": 0}
+    },
+    "risk_assessment": {"claims": [{"claim_id": "c1", "status": "medium", "uncertainty": ""}]},
+    "final_report": {
+      "retained_claim_ids": ["c1"],
+      "claim_statuses": {"c1": "medium"},
+      "source_ids": ["s1"],
+      "unresolved_claim_ids": [],
+      "sections": ["Production reading", "Evidence and verification", "Production implications", "Uncertainty or conflicts", "Sources consulted"]
+    }
+  },
+  {
+    "id": "invalid_source_attribution_dropped",
+    "description": "All evidence source identifiers for a retained claim must survive into the final report.",
+    "properties": ["source_preservation"],
+    "expected_valid": false,
+    "expected_issue_codes": ["source_attribution_dropped"],
+    "brief_analysis": {"claims": [{"claim_id": "c1", "requires_research": true}]},
+    "research_plan": {"tasks": [{"task_id": "t1", "claim_id": "c1"}]},
+    "evidence_review": {
+      "claims": [{"claim_id": "c1", "status": "high", "sources": ["s1", "s2"], "conflict": false, "uncertainty": ""}],
+      "usage": {"web_search_calls": 1, "web_fetch_calls": 1}
+    },
+    "risk_assessment": {"claims": [{"claim_id": "c1", "status": "high", "uncertainty": ""}]},
+    "final_report": {
+      "retained_claim_ids": ["c1"],
+      "claim_statuses": {"c1": "high"},
+      "source_ids": ["s1"],
+      "unresolved_claim_ids": [],
+      "sections": ["Production reading", "Evidence and verification", "Production implications", "Uncertainty or conflicts", "Sources consulted"]
+    }
+  },
+  {
+    "id": "invalid_uncertainty_dropped_downstream",
+    "description": "An unresolved evidence limitation must survive risk assessment and synthesis.",
+    "properties": ["uncertainty_propagation"],
+    "expected_valid": false,
+    "expected_issue_codes": ["uncertainty_dropped"],
+    "brief_analysis": {"claims": [{"claim_id": "c1", "requires_research": true}]},
+    "research_plan": {"tasks": [{"task_id": "t1", "claim_id": "c1"}]},
+    "evidence_review": {
+      "claims": [{"claim_id": "c1", "status": "medium", "sources": ["s1"], "conflict": false, "uncertainty": "The surviving record is incomplete."}],
+      "usage": {"web_search_calls": 1, "web_fetch_calls": 1}
+    },
+    "risk_assessment": {"claims": [{"claim_id": "c1", "status": "medium", "uncertainty": ""}]},
+    "final_report": {
+      "retained_claim_ids": ["c1"],
+      "claim_statuses": {"c1": "medium"},
+      "source_ids": ["s1"],
+      "unresolved_claim_ids": [],
+      "sections": ["Production reading", "Evidence and verification", "Production implications", "Uncertainty or conflicts", "Sources consulted"]
+    }
+  },
+  {
+    "id": "invalid_research_and_tool_budgets_exceeded",
+    "description": "The deterministic fixture cannot exceed the Phase 2 research and tool-call ceilings.",
+    "properties": ["budget_enforcement"],
+    "expected_valid": false,
+    "expected_issue_codes": ["research_budget_exceeded", "search_budget_exceeded", "fetch_budget_exceeded"],
+    "brief_analysis": {
+      "claims": [
+        {"claim_id": "c1", "requires_research": true},
+        {"claim_id": "c2", "requires_research": true},
+        {"claim_id": "c3", "requires_research": true},
+        {"claim_id": "c4", "requires_research": true},
+        {"claim_id": "c5", "requires_research": true},
+        {"claim_id": "c6", "requires_research": true},
+        {"claim_id": "c7", "requires_research": true}
+      ]
+    },
+    "research_plan": {
+      "tasks": [
+        {"task_id": "t1", "claim_id": "c1"},
+        {"task_id": "t2", "claim_id": "c2"},
+        {"task_id": "t3", "claim_id": "c3"},
+        {"task_id": "t4", "claim_id": "c4"},
+        {"task_id": "t5", "claim_id": "c5"},
+        {"task_id": "t6", "claim_id": "c6"},
+        {"task_id": "t7", "claim_id": "c7"}
+      ]
+    },
+    "evidence_review": {
+      "claims": [
+        {"claim_id": "c1", "status": "high", "sources": ["s1"], "conflict": false, "uncertainty": ""},
+        {"claim_id": "c2", "status": "high", "sources": ["s2"], "conflict": false, "uncertainty": ""},
+        {"claim_id": "c3", "status": "high", "sources": ["s3"], "conflict": false, "uncertainty": ""},
+        {"claim_id": "c4", "status": "high", "sources": ["s4"], "conflict": false, "uncertainty": ""},
+        {"claim_id": "c5", "status": "high", "sources": ["s5"], "conflict": false, "uncertainty": ""},
+        {"claim_id": "c6", "status": "high", "sources": ["s6"], "conflict": false, "uncertainty": ""},
+        {"claim_id": "c7", "status": "high", "sources": ["s7"], "conflict": false, "uncertainty": ""}
+      ],
+      "usage": {"web_search_calls": 7, "web_fetch_calls": 4}
+    },
+    "risk_assessment": {
+      "claims": [
+        {"claim_id": "c1", "status": "high", "uncertainty": ""},
+        {"claim_id": "c2", "status": "high", "uncertainty": ""},
+        {"claim_id": "c3", "status": "high", "uncertainty": ""},
+        {"claim_id": "c4", "status": "high", "uncertainty": ""},
+        {"claim_id": "c5", "status": "high", "uncertainty": ""},
+        {"claim_id": "c6", "status": "high", "uncertainty": ""},
+        {"claim_id": "c7", "status": "high", "uncertainty": ""}
+      ]
+    },
+    "final_report": {
+      "retained_claim_ids": ["c1", "c2", "c3", "c4", "c5", "c6", "c7"],
+      "claim_statuses": {"c1": "high", "c2": "high", "c3": "high", "c4": "high", "c5": "high", "c6": "high", "c7": "high"},
+      "source_ids": ["s1", "s2", "s3", "s4", "s5", "s6", "s7"],
+      "unresolved_claim_ids": [],
+      "sections": ["Production reading", "Evidence and verification", "Production implications", "Uncertainty or conflicts", "Sources consulted"]
+    }
+  },
+  {
+    "id": "invalid_search_more_than_once_per_task",
+    "description": "The Evidence Verifier cannot spend more than one web_search call per planned task.",
+    "properties": ["budget_enforcement"],
+    "expected_valid": false,
+    "expected_issue_codes": ["search_per_task_exceeded"],
+    "brief_analysis": {"claims": [{"claim_id": "c1", "requires_research": true}]},
+    "research_plan": {"tasks": [{"task_id": "t1", "claim_id": "c1"}]},
+    "evidence_review": {
+      "claims": [{"claim_id": "c1", "status": "high", "sources": ["s1"], "conflict": false, "uncertainty": ""}],
+      "usage": {"web_search_calls": 2, "web_fetch_calls": 0}
+    },
+    "risk_assessment": {"claims": [{"claim_id": "c1", "status": "high", "uncertainty": ""}]},
+    "final_report": {
+      "retained_claim_ids": ["c1"],
+      "claim_statuses": {"c1": "high"},
+      "source_ids": ["s1"],
+      "unresolved_claim_ids": [],
+      "sections": ["Production reading", "Evidence and verification", "Production implications", "Uncertainty or conflicts", "Sources consulted"]
+    }
+  },
+  {
+    "id": "invalid_final_report_section_order",
+    "description": "The final report must retain the exact five-section order.",
+    "properties": ["final_report_contract"],
+    "expected_valid": false,
+    "expected_issue_codes": ["final_report_contract_broken"],
+    "brief_analysis": {"claims": []},
+    "research_plan": {"tasks": []},
+    "evidence_review": {"claims": [], "usage": {"web_search_calls": 0, "web_fetch_calls": 0}},
+    "risk_assessment": {"claims": []},
+    "final_report": {
+      "retained_claim_ids": [],
+      "claim_statuses": {},
+      "source_ids": [],
+      "unresolved_claim_ids": [],
+      "sections": ["Evidence and verification", "Production reading", "Production implications", "Uncertainty or conflicts", "Sources consulted"]
+    }
+  }
+]
