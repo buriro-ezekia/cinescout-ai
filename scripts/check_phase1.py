@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 REQUIRED_FILES = [
@@ -16,10 +17,34 @@ REQUIRED_FILES = [
     "LICENSE",
 ]
 
+EXPECTED_PACKAGES = {
+    "google-adk": "2.7.1",
+    "mcp": "1.29.0",
+}
+
+
+def _check_packages() -> bool:
+    ok = True
+    for package, expected in EXPECTED_PACKAGES.items():
+        try:
+            installed = version(package)
+        except PackageNotFoundError:
+            print(f"PACKAGE_MISSING={package}")
+            ok = False
+            continue
+
+        print(f"{package.upper().replace('-', '_')}_VERSION={installed}")
+        if installed != expected:
+            print(f"PACKAGE_VERSION_MISMATCH={package}:expected={expected}:installed={installed}")
+            ok = False
+    return ok
+
 
 def main() -> int:
     missing = [path for path in REQUIRED_FILES if not Path(path).exists()]
-    if missing:
+    packages_ok = _check_packages()
+
+    if missing or not packages_ok:
         print("PHASE1_REPOSITORY_CONTRACT=FAIL")
         for path in missing:
             print(f"MISSING={path}")
