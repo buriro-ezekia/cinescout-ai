@@ -2,13 +2,13 @@
 
 **Evidence-backed agentic pre-production research for filmmakers, producers and screenwriters.**
 
-CineScout AI is being developed for the **Agentic Cinema: The Blockbuster Hackathon**. The project addresses a practical pre-production problem: creative teams often need to verify historical details, cultural context, locations, props, terminology and other production-sensitive claims across fragmented sources before they can make confident decisions.
+CineScout AI is being developed for the **Agentic Cinema: The Blockbuster Hackathon**. It addresses a practical pre-production challenge: creative teams often need to verify historical details, cultural context, locations, props, terminology and other production-sensitive claims across fragmented sources before making confident decisions.
 
-Rather than behaving as a general film chatbot, CineScout turns a production brief or screenplay extract into a research task, uses external evidence where factual verification is required, and returns a concise production intelligence response that makes uncertainty visible.
+Rather than operating as a general film chatbot, CineScout turns a production brief or screenplay extract into a structured research task. It uses external evidence where factual verification is required and returns concise production intelligence that distinguishes evidence, interpretation, uncertainty and recommendation.
 
 ## Phase 1 status
 
-Phase 1 implements the project's first complete vertical slice:
+Phase 1 establishes the project's first complete vertical slice:
 
 ```text
 Production brief
@@ -26,18 +26,18 @@ External evidence
 Evidence-backed production intelligence
 ```
 
-The purpose of this phase is deliberately narrow. Before introducing several specialist agents, the repository first proves that Gemini can reason about a production brief, invoke the required partner service at runtime, receive live evidence and use that evidence in the final response.
+This phase is intentionally focused. Before introducing several specialist agents, the repository first demonstrates that Gemini can interpret a production brief, invoke the required partner service at runtime, receive external evidence and use that evidence to support a practical production response.
 
 ## Technology
 
-- **Google Agent Development Kit (ADK)** for the agent runtime;
-- **Gemini** as the reasoning model;
-- **Google Cloud / Vertex AI** as the intended hackathon runtime;
-- **Parallel Search MCP** for live web research and evidence retrieval;
-- **Agents CLI** for local development, evaluation and later deployment support;
-- **GitHub Actions** for no-secret, no-paid-call quality checks.
+- **Google Agent Development Kit (ADK)** provides the agent runtime;
+- **Gemini** provides the reasoning model;
+- **Google Cloud / Vertex AI** is the intended hackathon runtime;
+- **Parallel Search MCP** provides external web research and evidence retrieval;
+- **Agents CLI** supports local development, evaluation and later deployment work;
+- **GitHub Actions** provides quality checks without external credentials or live model calls.
 
-Parallel's Search MCP supports anonymous light usage, so a Parallel API key is not required for the initial local vertical slice. A key can be supplied later if higher rate limits are needed.
+The development workflow is designed to remain **at no cost** during the hackathon by using the available Google Cloud credits for deliberate model testing and Parallel Search MCP's anonymous light-use allowance for the initial research workflow. A Parallel API key is therefore not required for the Phase 1 local vertical slice.
 
 ## What the Phase 1 agent does
 
@@ -45,12 +45,12 @@ Given a screenplay extract or production brief, the agent is instructed to:
 
 1. identify factual or contextual matters that require external verification;
 2. use Parallel `web_search` for claims that depend on external evidence;
-3. use `web_fetch` when a particular source needs closer inspection;
+3. use `web_fetch` when a particular source requires closer inspection;
 4. distinguish evidence from interpretation and recommendation;
 5. make conflicting or insufficient evidence explicit; and
-6. explain the practical production implications of what it found.
+6. explain the practical production implications of the evidence found.
 
-It must not invent sources or present uncertain material as verified fact.
+The agent must not invent sources or present uncertain material as verified fact.
 
 ## Repository structure
 
@@ -80,28 +80,56 @@ cinescout-ai/
 
 ## Local development on Windows
 
-The project is intended to run comfortably from a local VS Code terminal. Codespaces are not required.
+The repository is designed for local development in VS Code. Codespaces are not required, which allows the development and validation workflow to remain at no cost apart from deliberate Google Cloud model calls covered by the hackathon credits.
 
-### 1. Use Python 3.11, 3.12 or 3.13
+### 1. Confirm a supported Python installation
 
-Python 3.12 is recommended for the hackathon development environment.
+The repository supports Python **3.11, 3.12 and 3.13**. Python **3.12 is recommended** for a stable and reproducible hackathon environment. Python 3.14 is not supported by the current repository configuration and should not be used for Phase 1 validation.
+
+Check the Python installations detected by the Windows launcher:
+
+```powershell
+py --list
+```
+
+If Python 3.12 is not listed, it can be installed at no cost through Windows Package Manager:
+
+```powershell
+winget install -e --id Python.Python.3.12
+```
+
+Close and reopen the VS Code terminal after installation, then confirm:
+
+```powershell
+py -3.12 --version
+```
+
+### 2. Create and activate an isolated virtual environment
 
 From PowerShell in the repository root:
 
 ```powershell
 py -3.12 -m venv .venv
 .\.venv\Scripts\Activate.ps1
+python --version
+```
+
+The final command should report Python 3.12.x. The readiness script now requires an active virtual environment so that project dependencies are not installed into the user's global Python environment.
+
+Install the development dependencies:
+
+```powershell
 python -m pip install --upgrade pip
 python -m pip install -r requirements-dev.txt
 ```
 
-### 2. Create the local environment file
+### 3. Create the local environment file
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Edit `.env` and set your Google Cloud project. The recommended configuration is:
+Edit `.env` and set the Google Cloud project when the credentialled smoke test is required. The recommended configuration is:
 
 ```text
 GOOGLE_GENAI_USE_VERTEXAI=true
@@ -111,9 +139,32 @@ CINESCOUT_MODEL=gemini-3.6-flash
 PARALLEL_MCP_URL=https://search.parallel.ai/mcp
 ```
 
-Do not commit `.env` or service-account credentials.
+Do not commit `.env`, access tokens or service-account credentials.
 
-### 3. Authenticate to Google Cloud
+### 4. Run the Phase 1 readiness checks at no cost
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\local_readiness.ps1
+```
+
+The script performs four checks without making live Gemini or Parallel calls:
+
+- Python compilation;
+- Ruff linting;
+- automated tests; and
+- the Phase 1 repository contract.
+
+The script stops immediately if the Python version is unsupported, no virtual environment is active, or any command returns a non-zero exit code. A successful run ends with:
+
+```text
+PHASE1_LOCAL_READINESS=PASS
+```
+
+A `PASS` therefore means that every local readiness check completed successfully.
+
+### 5. Authenticate to Google Cloud for the deliberate live test
+
+The automated readiness checks above run at no cost and require no Google Cloud credentials. Authentication is only required for the deliberate Gemini smoke test.
 
 For local Vertex AI development, use Application Default Credentials:
 
@@ -124,29 +175,15 @@ gcloud config set project YOUR_PROJECT_ID
 
 The relevant Vertex AI APIs must be enabled in the selected Google Cloud project.
 
-### 4. Run the no-cost readiness suite
+### 6. Run the agent locally
 
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts\local_readiness.ps1
-```
-
-This performs compilation, linting, automated tests and repository-contract checks. It deliberately avoids live Gemini and Parallel calls.
-
-A successful run ends with:
-
-```text
-PHASE1_LOCAL_READINESS=PASS
-```
-
-### 5. Run the agent locally
-
-Install the current Google Agents CLI if it is not already available:
+Install Google Agents CLI if it is not already available in the active virtual environment:
 
 ```powershell
 python -m pip install google-agents-cli
 ```
 
-Then run a terminal smoke test:
+Run a terminal smoke test:
 
 ```powershell
 agents-cli run "A historical drama is set in Zanzibar in 1962. A scene shows a specific vehicle model, refers to a public institution by name, and uses a period political term. Identify which details require verification, research them, and explain any production risks with sources."
@@ -160,28 +197,28 @@ agents-cli playground
 
 The playground is normally available at `http://localhost:8080`.
 
-## What to verify during the first live test
+## Phase 1 live acceptance check
 
 The first credentialled run should demonstrate four things:
 
 - Gemini receives and interprets the production brief;
-- the agent invokes Parallel Search MCP rather than answering externally verifiable claims from memory alone;
+- the agent invokes Parallel Search MCP for externally verifiable claims rather than relying on model memory alone;
 - the response identifies its evidence and uncertainty; and
-- the final answer explains why the evidence matters to the production decision.
+- the final response explains why the evidence matters to the production decision.
 
-That live run is the final manual acceptance check for Phase 1.
+This deliberate live run is the remaining manual acceptance check for Phase 1. It should be used sparingly so that development remains at no cost within the hackathon's available credits and partner allowance.
 
-## Cost discipline
+## Development at no cost
 
-The repository is designed so that ordinary CI does not make live model or partner-service calls. This prevents test runs from consuming cloud credits. Parallel Search MCP can be used anonymously for light usage; Google model calls should be limited to deliberate local smoke tests during this phase.
+Ordinary CI and local readiness checks do not make live model or partner-service calls. This prevents routine validation from consuming Google Cloud credits. Parallel Search MCP can be used for anonymous light usage, while Gemini calls are reserved for deliberate integration and demonstration tests covered by the available hackathon credits.
 
 ## Security
 
-Secrets do not belong in source control. The repository ignores `.env`, local virtual environments, service-account JSON files and common generated artefacts. Production credentials will later move to Google Secret Manager and workload identity rather than repository variables or committed files.
+Secrets do not belong in source control. The repository ignores `.env`, local virtual environments, service-account JSON files and common generated artefacts. Production credentials will later be managed through Google Secret Manager and workload identity rather than committed files.
 
 ## Next development phase
 
-Once the vertical slice has been reproduced successfully from a clean clone, the next phase will separate the current root workflow into specialist agents for brief interpretation, research planning, evidence verification, production-risk assessment and report synthesis. The existing Parallel MCP integration will remain the shared research foundation.
+Once the vertical slice has been reproduced successfully from a clean local clone, the next phase will separate the current root workflow into specialist agents for brief interpretation, research planning, evidence verification, production-risk assessment and report synthesis. The existing Parallel MCP integration will remain the shared research foundation.
 
 ## Licence
 
