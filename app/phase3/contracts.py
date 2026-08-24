@@ -17,6 +17,7 @@ class ResilienceIssueCode(StrEnum):
     UNKNOWN_TASK_CLAIM = "unknown_task_claim"
     DUPLICATE_IDENTIFIER = "duplicate_identifier"
     MISSING_EVIDENCE = "missing_evidence"
+    MISSING_RISK_ASSESSMENT = "missing_risk_assessment"
     UNSUPPORTED_PROMOTED = "unsupported_promoted"
     CONFLICT_PROMOTED_HIGH = "conflict_promoted_high"
     CONFIDENCE_ESCALATION = "confidence_escalation"
