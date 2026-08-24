@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Evidence-backed agentic pre-production research for filmmakers."
 readme = "README.md"
 requires-python = ">=3.11,<3.14"
-license = { text = "Apache-2.0" }
+license = { text = "MIT" }
 authors = [
   { name = "Buriro Ezekia" }
 ]
