@@ -36,5 +36,8 @@ jobs:
       - name: Run tests
         run: python -m pytest -q
 
+      - name: Check offline evaluation contract
+        run: python scripts/check_offline_evals.py
+
       - name: Check Phase 1 repository contract
         run: python scripts/check_phase1.py
